@@ -1,0 +1,30 @@
+#!/usr/bin/make -f
+
+export PYBUILD_NAME=badgerdrop
+export DH_VERBOSE=1
+
+%:
+	dh $@ --with python3 --buildsystem=pybuild
+
+override_dh_auto_build:
+	dh_auto_build
+	# Compile translations
+	for lang in de fr es hu; do \
+		mkdir -p debian/tmp/usr/share/locale/$$lang/LC_MESSAGES; \
+		msgfmt po/$$lang.po -o debian/tmp/usr/share/locale/$$lang/LC_MESSAGES/badgerdrop.mo; \
+	done
+
+override_dh_auto_install:
+	dh_auto_install
+	# Install entry point scripts
+	install -D -m 755 debian/badgerdrop/usr/bin/badgerdrop debian/badgerdrop/usr/bin/badgerdrop
+	install -D -m 755 debian/badgerdrop/usr/bin/badgerdrop-debug debian/badgerdrop/usr/bin/badgerdrop-debug
+	install -D -m 755 debian/badgerdrop/usr/bin/badgerdrop-list debian/badgerdrop/usr/bin/badgerdrop-list
+	install -D -m 755 debian/badgerdrop/usr/bin/badgerdrop-sound debian/badgerdrop/usr/bin/badgerdrop-sound
+	# Install translations
+	for lang in de fr es hu; do \
+		install -D -m 644 debian/tmp/usr/share/locale/$$lang/LC_MESSAGES/badgerdrop.mo debian/badgerdrop/usr/share/locale/$$lang/LC_MESSAGES/badgerdrop.mo; \
+	done
+
+override_dh_python3:
+	dh_python3 --shebang=/usr/bin/python3

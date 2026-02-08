@@ -1,0 +1,3 @@
+#!/bin/sh
+# List installed apps entry point for badgerdrop
+exec python3 -m badgerdrop --list "$@"

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=BadgerDrop
+Comment=AppImage installer for Linux
+Exec=/usr/bin/badgerdrop %f
+Icon=badgerdrop
+Type=Application
+Terminal=false
+Categories=System;PackageManager;
+MimeType=application/vnd.appimage;application/x-appimage;
+StartupWMClass=dev.badgerdrop.Installer

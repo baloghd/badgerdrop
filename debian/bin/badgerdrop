@@ -1,0 +1,3 @@
+#!/bin/sh
+# Entry point wrapper for badgerdrop
+exec python3 -m badgerdrop "$@"

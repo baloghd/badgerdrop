@@ -1,0 +1,7 @@
+# List of source files containing translatable strings
+src/badgerdrop/main.py
+src/badgerdrop/ui/window.py
+src/badgerdrop/ui/progress_dialog.py
+src/badgerdrop/installer.py
+src/badgerdrop/appimage.py
+src/badgerdrop/notifications.py

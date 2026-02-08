@@ -1,0 +1,138 @@
+# French translations for BadgerDrop package.
+# Copyright (C) 2026 THE BadgerDrop'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the BadgerDrop package.
+# Automatically generated, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: BadgerDrop 0.1.0\n"
+"Report-Msgid-Bugs-To: bugs@dollspace.gay\n"
+"POT-Creation-Date: 2026-02-08 10:27+0100\n"
+"PO-Revision-Date: 2026-02-08 10:27+0100\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: src/badgerdrop/main.py:51
+msgid "Debug AppImage parsing"
+msgstr "Déboguer l'analyse AppImage"
+
+#: src/badgerdrop/ui/window.py:162
+msgid "Settings"
+msgstr "Paramètres"
+
+#: src/badgerdrop/ui/window.py:225 src/badgerdrop/ui/window.py:582
+msgid "Drop AppImage here"
+msgstr "Déposez l'AppImage ici"
+
+#: src/badgerdrop/ui/window.py:246
+msgid "Applications"
+msgstr "Applications"
+
+#: src/badgerdrop/ui/window.py:251
+msgid "Drag an AppImage here to load it"
+msgstr "Faites glisser un AppImage ici pour le charger"
+
+#: src/badgerdrop/ui/window.py:257
+msgid "Debug Output"
+msgstr "Sortie de débogage"
+
+#: src/badgerdrop/ui/window.py:287
+msgid "Make executable"
+msgstr "Rendre exécutable"
+
+#: src/badgerdrop/ui/window.py:421
+msgid "Not an AppImage file"
+msgstr "Pas un fichier AppImage"
+
+#: src/badgerdrop/ui/window.py:440
+msgid "Drag the app icon to the Applications folder to install"
+msgstr "Faites glisser l'icône de l'application dans le dossier Applications pour installer"
+
+#: src/badgerdrop/ui/window.py:444
+msgid "Failed to parse AppImage: {}"
+msgstr "Échec de l'analyse de l'AppImage : {}"
+
+#: src/badgerdrop/ui/window.py:523
+msgid "Installed {}"
+msgstr "{} installé"
+
+#: src/badgerdrop/ui/window.py:538
+msgid "Installation failed: {}"
+msgstr "Échec de l'installation : {}"
+
+#: src/badgerdrop/ui/window.py:553 src/badgerdrop/ui/window.py:556
+msgid "Show in Folder"
+msgstr "Afficher dans le dossier"
+
+#: src/badgerdrop/ui/progress_dialog.py:16
+#, python-brace-format
+msgid "Installing {app_name}"
+msgstr "Installation de {app_name}"
+
+#: src/badgerdrop/ui/progress_dialog.py:42
+msgid "Preparing..."
+msgstr "Préparation..."
+
+#: src/badgerdrop/ui/progress_dialog.py:80
+msgid "Copying AppImage..."
+msgstr "Copie de l'AppImage..."
+
+#: src/badgerdrop/ui/progress_dialog.py:91
+msgid "B"
+msgstr "o"
+
+#: src/badgerdrop/ui/progress_dialog.py:91
+msgid "KB"
+msgstr "Ko"
+
+#: src/badgerdrop/ui/progress_dialog.py:91
+msgid "MB"
+msgstr "Mo"
+
+#: src/badgerdrop/ui/progress_dialog.py:91
+msgid "GB"
+msgstr "Go"
+
+#: src/badgerdrop/ui/progress_dialog.py:95
+#, python-brace-format
+msgid "{n:.1f} TB"
+msgstr "{n:.1f} To"
+
+#: src/badgerdrop/ui/progress_dialog.py:107
+msgid "Installation complete!"
+msgstr "Installation terminée !"
+
+#: src/badgerdrop/ui/progress_dialog.py:118
+#, python-brace-format
+msgid "Error: {message}"
+msgstr "Erreur : {message}"
+
+#: src/badgerdrop/notifications.py:36
+#, python-brace-format
+msgid "✓ {app_name} installed"
+msgstr "✓ {app_name} installé"
+
+#: src/badgerdrop/notifications.py:37
+#, python-brace-format
+msgid "Successfully installed to {app_path}"
+msgstr "Installé avec succès dans {app_path}"
+
+#: src/badgerdrop/notifications.py:50
+#, python-brace-format
+msgid "✗ Failed to install {app_name}"
+msgstr "✗ Échec de l'installation de {app_name}"
+
+#: src/badgerdrop/notifications.py:63
+#, python-brace-format
+msgid "Update available for {app_name}"
+msgstr "Mise à jour disponible pour {app_name}"
+
+#: src/badgerdrop/notifications.py:64
+#, python-brace-format
+msgid "Version {new_version} is available (current: {current_version})"
+msgstr "La version {new_version} est disponible (actuelle : {current_version})"

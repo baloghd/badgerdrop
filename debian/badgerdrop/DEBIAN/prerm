@@ -1,0 +1,23 @@
+#!/bin/sh
+set -e
+
+# Pre-removal script for badgerdrop
+
+case "$1" in
+    remove|upgrade|deconfigure)
+        # Remove badgerdrop as default handler
+        # We don't set a new default, user can choose another
+        ;;
+    
+    failed-upgrade)
+        ;;
+    
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

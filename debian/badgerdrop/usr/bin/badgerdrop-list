@@ -1,0 +1,3 @@
+#!/bin/sh
+# AppImg list entry point
+exec /usr/bin/python3 -c "from badgerdrop.installed import InstalledAppsManager; import json; apps = InstalledAppsManager().get_all_apps(); print(json.dumps([{\"name\": a.name, \"version\": a.version, \"install_path\": a.install_path, \"install_date\": a.install_date} for a in apps], indent=2))"

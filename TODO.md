@@ -1,0 +1,76 @@
+## UI/UX Features
+- [x] FEATURE: add settings dialog
+- [x] FEATURE: add sound after installation
+- [x] FEATURE: make sound notification optional / configurable
+- [x] FEATURE: "make executable" should be an option on UI, autoset to true - but user can disable it if they want
+- [x] FEATURE: add system notification for successful installation / failure
+- [x] FEATURE: add support for multiple languages
+- [x] FEATURE: add progress bar for installation process
+- [x] FEATURE: add option to choose installation directory
+- [x] BUG: if user tries to install an appimage that is already installed, it should prompt them to either overwrite the existing one or cancel the installation, not fail with an error
+- [x] BUG: application gets launched immediately after installation, even if the user has not chosen to do so (and we get the application is not responding error)
+  - Fixed: `_is_electron_app()` was running the AppImage with subprocess to detect Electron. Now checks for chrome-sandbox file in extracted AppImage instead.
+- [x] BUG: we make the file executable even if we don't install it -> only make executable if user chooses to install
+- [x] BUG: window title should be "BadgerDrop" instead of "AppImage Installer"
+- [x] BUG: different icon from Gnome menu vs on dock
+- [ ] BUG: investigate 'app does not respond' error on some AppImages (e.g. Obsidian) - may be related to how we detect Electron apps 
+
+
+## File/Package Support
+- [ ] FEATURE: handle .dkpg / .rpm files
+- [ ] FEATURE: add support for installing .flatpak files
+- [x] FEATURE: make the app file opener for .appimage files
+  - Created data/badgerdrop.mime.xml MIME type definition (handles both application/vnd.appimage and application/x-appimage)
+  - Created data/dev.badgerdrop.Installer.desktop with MimeType association
+  - postinst script registers badgerdrop as default handler
+  - prerm script unregisters on uninstall
+  - NOTE: Nautilus (GNOME Files) runs executable files directly instead of opening with default app. This is standard behavior.
+    - Web-downloaded AppImages (not executable): Double-click opens with badgerdrop ✓
+    - Already executable AppImages: Double-click runs directly (expected - use right-click → "Open With badgerdrop" if needed)
+
+## Packaging & Distribution
+- [x] IMPROVEMENT: package up as dpkg
+  - Created debian/ packaging directory
+  - Built badgerdrop_0.1.0-1_all.deb (44KB)
+  - Includes entry points: badgerdrop, badgerdrop-debug, badgerdrop-list, badgerdrop-sound
+  - Makefile targets: build-dpkg, install-package, reinstall-package, clean-dpkg
+- [x] IMPROVEMENT: package up as rpm
+  - Built badgerdrop-0.1.0-1.noarch.rpm (59KB) using fpm
+  - Makefile targets: build-rpm, build-all, clean-rpm
+  - Package includes all entry points and proper dependencies
+- [ ] IMPROVEMENT: add support for more package managers (e.g. apt, yum)
+- [ ] IMPROVEMENT: create a PPA for easy installation on Ubuntu-based systems
+- [ ] IMPROVEMENT: determine Python version compatibility matrix
+
+## Code Quality & Testing
+
+### Testing
+- [ ] IMPROVEMENT: add basic unit test suite
+- [ ] IMPROVEMENT: add integration tests for installation process
+- [ ] IMPROVEMENT: add tests for edge cases (e.g. installing to non-writable directory, handling invalid AppImages)
+- [ ] IMPROVEMENT: add process for creating 'hello world' AppImage for testing purposes
+
+### Architecture & Refactoring - Phase 1: Foundation (Critical)
+- [ ] REFACTOR: Create constants module - extract magic numbers (margins, icon sizes, timeouts, permissions, defaults) from window.py, installer.py, appimage.py, settings.py
+- [ ] REFACTOR: Create paths.py module - single source of truth for config/paths (deduplicate installed.py:27 and settings.py:22)
+- [ ] REFACTOR: Extract CSS styles from window.py:22-116 to ui/styles.css file
+- [ ] REFACTOR: Fix import consistency - standardize relative imports in UI and gettext usage across codebase
+
+### Architecture & Refactoring - Phase 2: Core Architecture (High Priority)
+- [ ] REFACTOR: Extract InstallationService from window.py:474-547 - move installation orchestration logic to services layer
+- [ ] REFACTOR: Decompose installer.py into smaller classes - FileCopier, IconInstaller, DesktopEntryManager
+- [ ] REFACTOR: Create services/appimage_service.py - extract AppImage parsing from window.py:413-448
+
+### Architecture & Refactoring - Phase 3: Clean Up (Medium Priority)
+- [ ] REFACTOR: Implement proper logging - replace debug print() patterns with Python logging module
+- [ ] REFACTOR: Create utils/validators.py - extract directory validation from settings_dialog.py:209-235
+- [ ] REFACTOR: Create utils/desktop.py - extract file manager integration from window.py:549-575
+- [ ] REFACTOR: Clean settings_dialog.py - remove commented-out code at lines 46-49
+
+### Architecture & Refactoring - Phase 4: CLI & Dead Code (Lower Priority)
+- [ ] REFACTOR: Extract CLI commands to cli/commands.py - move CLI entry points from main.py
+- [ ] REFACTOR: Remove or implement _is_electron_app() dead code in installer.py:176-193
+
+### Bugs & Issues
+- [ ] IMPROVEMENT: add logging for debugging purposes instead of print statements
+- [ ] BUG: 'make executable' should only be applied to the installed file if the user does not choose to install

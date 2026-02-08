@@ -1,0 +1,17 @@
+Package: badgerdrop
+Version: 0.1.0
+Section: utils
+Priority: optional
+Maintainer: BadgerDrop Team <badgerdrop@example.com>
+Architecture: all
+Depends: python3 (>= 3.11),
+         python3-gi,
+         gir1.2-gtk-4.0,
+         gir1.2-adw-1,
+         libgirepository-1.0-1,
+         desktop-file-utils,
+         shared-mime-info
+Description: AppImage installer for Linux
+ BadgerDrop provides a drag-and-drop installation experience
+ for AppImage files on Linux. It features a clean GTK4 interface,
+ sound notifications, and easy management of installed applications.

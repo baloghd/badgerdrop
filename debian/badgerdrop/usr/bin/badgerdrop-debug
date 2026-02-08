@@ -1,0 +1,3 @@
+#!/bin/sh
+# AppImg debug entry point
+exec /usr/bin/python3 -m badgerdrop --debug "$@"

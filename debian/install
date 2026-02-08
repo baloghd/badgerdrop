@@ -1,0 +1,10 @@
+usr/lib/python3/dist-packages/badgerdrop/*
+usr/lib/python3/dist-packages/badgerdrop/ui/*
+usr/bin/badgerdrop
+usr/bin/badgerdrop-debug
+usr/bin/badgerdrop-list
+usr/bin/badgerdrop-sound
+usr/share/applications/dev.badgerdrop.Installer.desktop
+usr/share/mime/packages/badgerdrop.xml
+usr/share/pixmaps/badgerdrop.svg
+usr/share/locale/*/LC_MESSAGES/badgerdrop.mo
