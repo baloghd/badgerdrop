@@ -57,9 +57,9 @@
 - [x] REFACTOR: Fix import consistency - standardize relative imports in UI and gettext usage across codebase
 
 ### Architecture & Refactoring - Phase 2: Core Architecture (High Priority)
-- [ ] REFACTOR: Extract InstallationService from window.py:474-547 - move installation orchestration logic to services layer
-- [ ] REFACTOR: Decompose installer.py into smaller classes - FileCopier, IconInstaller, DesktopEntryManager
-- [ ] REFACTOR: Create services/appimage_service.py - extract AppImage parsing from window.py:413-448
+- [x] REFACTOR: Extract InstallationService from window.py:474-547 - move installation orchestration logic to services layer
+- [x] REFACTOR: Decompose installer.py into smaller classes - FileCopier, IconInstaller, DesktopEntryManager
+- [x] REFACTOR: Create services/appimage_service.py - extract AppImage parsing from window.py:413-448
 
 ### Architecture & Refactoring - Phase 3: Clean Up (Medium Priority)
 - [ ] REFACTOR: Implement proper logging - replace debug print() patterns with Python logging module

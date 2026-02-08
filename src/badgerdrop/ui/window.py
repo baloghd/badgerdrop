@@ -11,8 +11,8 @@ import gettext
 from pathlib import Path
 
 from .drag_content import AppImageDragContent
-from ..appimage import AppImageParser, AppImageInfo
-from ..installer import AppImageInstaller
+from ..appimage import AppImageInfo
+from ..services import AppImageService, InstallationService
 from ..settings import SettingsManager
 from ..sound import SoundManager
 from .settings_dialog import SettingsDialog
@@ -339,16 +339,14 @@ class MainWindow(Adw.ApplicationWindow):
         self._debug_print(f"Loading: {file_path}")
 
         path = Path(file_path)
-        if not path.suffix.lower() == ".appimage" and not path.name.endswith(
-            ".AppImage"
-        ):
+        service = AppImageService(debug=self.debug_mode)
+        if not service.validate_appimage(str(path)):
             self._show_error(_("Not an AppImage file"))
             return
 
         try:
             # Parse the AppImage
-            parser = AppImageParser(file_path, debug=self.debug_mode)
-            info = parser.parse()
+            info = service.parse_appimage(file_path)
 
             self.current_appimage = path
             self.current_info = info
@@ -412,34 +410,11 @@ class MainWindow(Adw.ApplicationWindow):
             f"Installing {self.current_appimage.name} ({total_size / 1024 / 1024:.1f} MB)"
         )
 
-        # Track installation result
-        install_result = {"success": False, "error": None, "installed_app": None}
-
         def progress_callback(description: str, bytes_copied: int, total_bytes: int):
             """Update progress dialog from worker thread"""
             GLib.idle_add(
                 dialog.update_progress, description, bytes_copied, total_bytes
             )
-
-        def install_worker():
-            """Run installation in background thread"""
-            try:
-                installer = AppImageInstaller(debug=self.debug_mode)
-                installed_app = installer.install(
-                    str(self.current_appimage),
-                    self.current_info,
-                    make_executable=self.settings.auto_make_executable,
-                    progress_callback=progress_callback,
-                )
-                install_result["installed_app"] = installed_app
-                install_result["success"] = True
-                GLib.idle_add(on_install_complete, installed_app)
-            except Exception as e:
-                install_result["error"] = str(e)
-                GLib.idle_add(on_install_error, e)
-            finally:
-                # Cleanup mount point in any case
-                GLib.idle_add(self.current_info.cleanup)
 
         def on_install_complete(installed_app):
             """Called on UI thread when installation succeeds"""
@@ -468,11 +443,21 @@ class MainWindow(Adw.ApplicationWindow):
                 self._debug_print(traceback.format_exc())
             return False
 
-        # Start installation in background thread
-        import threading
+        def cleanup_callback():
+            """Cleanup mount point in any case"""
+            self.current_info.cleanup()
 
-        thread = threading.Thread(target=install_worker, daemon=True)
-        thread.start()
+        # Start installation using service
+        service = InstallationService(debug=self.debug_mode)
+        service.install_async(
+            appimage_path=self.current_appimage,
+            info=self.current_info,
+            make_executable=self.settings.auto_make_executable,
+            progress_callback=progress_callback,
+            success_callback=lambda app: GLib.idle_add(on_install_complete, app),
+            error_callback=lambda err: GLib.idle_add(on_install_error, err),
+            cleanup_callback=lambda: GLib.idle_add(cleanup_callback),
+        )
 
     def _add_reveal_button(self):
         """Add a button to reveal the installed app in file manager"""
