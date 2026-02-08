@@ -26,4 +26,5 @@ dev-dependencies = [
     "pytest>=7.0",
     "black>=23.0",
     "ruff>=0.1.0",
+    "deadcode>=2.4.1",
 ]
