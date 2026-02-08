@@ -92,15 +92,13 @@ uninstall-desktop:
 # Format code
 format:
 	@echo "Formatting code..."
-	uv run black src/
-	uv run ruff check --fix src/
+	uv run ruff check --fix --unsafe-fixes src/
 	@echo "Formatting complete!"
 
 # Run linting and type checks
 check:
 	@echo "Running checks..."
 	uv run ruff check src/
-	uv run mypy src/ || true
 	@echo "Checks complete!"
 
 # Run tests

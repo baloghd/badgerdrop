@@ -1,0 +1,94 @@
+/* BadgerDrop GTK4 Application Styles */
+
+.drop-area {
+    border-radius: 24px;
+    border: 3px dashed alpha(@accent_color, 0.3);
+    padding: 48px;
+    transition: all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.drop-area.drag-over {
+    border-color: @accent_color;
+    border-style: solid;
+    transform: scale(1.02);
+}
+
+.app-icon-container {
+    background: @card_bg_color;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 8px 32px alpha(black, 0.15);
+    transition: all 350ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.app-icon-container:hover {
+    box-shadow: 0 12px 40px alpha(black, 0.2);
+    transform: translateY(-2px);
+}
+
+.app-icon-container.dragging {
+    background: alpha(@accent_bg_color, 0.2);
+    box-shadow: 0 16px 56px alpha(black, 0.3);
+    transform: scale(1.05) translateY(-4px);
+}
+
+.target-container {
+    background: @card_bg_color;
+    border-radius: 16px;
+    padding: 32px;
+    border: 2px solid alpha(@borders, 0.5);
+    transition: all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.target-container:hover {
+    box-shadow: 0 4px 20px alpha(black, 0.1);
+}
+
+.target-container.highlight {
+    background: alpha(@accent_bg_color, 0.15);
+    border-color: @accent_color;
+    border-style: dashed;
+    border-width: 3px;
+    box-shadow: 0 8px 32px alpha(@accent_color, 0.2);
+}
+
+.target-container.drop-ready {
+    background: alpha(@accent_bg_color, 0.3);
+    border-color: @accent_color;
+    border-style: solid;
+    transform: scale(1.08);
+    box-shadow: 0 16px 64px alpha(@accent_color, 0.4);
+}
+
+.title-label {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.subtitle-label {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.arrow-label {
+    font-size: 48px;
+    opacity: 0.5;
+    font-weight: 200;
+    transition: opacity 300ms ease;
+}
+
+.arrow-label.active {
+    opacity: 0.8;
+}
+
+.success-toast {
+    background: @accent_bg_color;
+    color: @accent_fg_color;
+    border-radius: 12px;
+    padding: 16px 24px;
+    font-weight: 600;
+}
+
+.success-toast label {
+    font-size: 16px;
+}

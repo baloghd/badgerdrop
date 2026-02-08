@@ -28,14 +28,14 @@ class AppImageInstaller:
         self.registry = InstalledAppsManager()
 
     def install(
-        self, 
-        appimage_path: str, 
-        info: AppImageInfo, 
+        self,
+        appimage_path: str,
+        info: AppImageInfo,
         make_executable: bool = True,
-        progress_callback: Optional[Callable[[str, int, int], None]] = None
+        progress_callback: Optional[Callable[[str, int, int], None]] = None,
     ) -> InstalledApp:
         """Install an AppImage to ~/Applications with desktop integration
-        
+
         Args:
             appimage_path: Path to the AppImage file
             info: AppImageInfo with metadata
@@ -61,12 +61,8 @@ class AppImageInstaller:
 
         try:
             # Copy AppImage with progress
-            self._copy_with_progress(
-                appimage_src, 
-                target_appimage, 
-                progress_callback
-            )
-            
+            self._copy_with_progress(appimage_src, target_appimage, progress_callback)
+
             # Make executable if requested
             if make_executable:
                 target_appimage.chmod(0o755)
@@ -113,14 +109,14 @@ class AppImageInstaller:
             raise
 
     def _copy_with_progress(
-        self, 
-        src: Path, 
-        dst: Path, 
+        self,
+        src: Path,
+        dst: Path,
         progress_callback: Optional[Callable[[str, int, int], None]] = None,
-        chunk_size: int = 8192
+        chunk_size: int = 8192,
     ):
         """Copy file with optional progress callback
-        
+
         Args:
             src: Source file path
             dst: Destination file path
@@ -129,21 +125,21 @@ class AppImageInstaller:
         """
         total_size = src.stat().st_size
         copied = 0
-        
+
         if self.debug:
             print(f"[DEBUG] Copying {src} ({total_size} bytes) to {dst}")
-        
-        with open(src, 'rb') as fsrc, open(dst, 'wb') as fdst:
+
+        with open(src, "rb") as fsrc, open(dst, "wb") as fdst:
             while True:
                 chunk = fsrc.read(chunk_size)
                 if not chunk:
                     break
                 fdst.write(chunk)
                 copied += len(chunk)
-                
+
                 if progress_callback:
                     progress_callback("copying", copied, total_size)
-        
+
         if self.debug:
             print(f"[DEBUG] Copy complete: {copied} bytes copied")
 
@@ -179,7 +175,7 @@ class AppImageInstaller:
         # and look for chrome-sandbox in the mount point
         if info.mount_proc is None or info.mount_proc.poll() is not None:
             return False
-        
+
         try:
             # The mount_proc's stdout has the mount point
             # We need to find the mount point from the AppImageInfo

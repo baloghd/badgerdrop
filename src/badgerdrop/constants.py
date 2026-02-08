@@ -1,0 +1,54 @@
+"""Application-wide constants and magic numbers"""
+
+# Window dimensions
+WINDOW_DEFAULT_WIDTH = 800
+WINDOW_DEFAULT_HEIGHT = 500
+
+# CSS/Border radius values
+BORDER_RADIUS_LARGE = 24
+BORDER_RADIUS_MEDIUM = 20
+BORDER_RADIUS_SMALL = 16
+BORDER_RADIUS_XSMALL = 12
+
+# CSS Padding values
+PADDING_XLARGE = 48
+PADDING_LARGE = 32
+PADDING_MEDIUM = 24
+PADDING_SMALL = 16
+
+# Font sizes
+FONT_SIZE_TITLE = 24
+FONT_SIZE_SUBTITLE = 14
+FONT_SIZE_ARROW = 48
+FONT_SIZE_TOAST = 16
+
+# Animation timing (milliseconds)
+TRANSITION_SLOW = 400
+TRANSITION_MEDIUM = 350
+TRANSITION_FAST = 300
+
+# File permissions
+PERMISSION_EXECUTABLE = 0o755
+PERMISSION_FILE = 0o644
+
+# File operations
+COPY_CHUNK_SIZE = 8192
+
+# Icon sizes
+ICON_SIZE_DEFAULT = 128
+
+# Filename sanitization
+UNSAFE_FILENAME_CHARS = '<>:"/\\|?*'
+
+# Default paths
+DEFAULT_INSTALL_DIR = "~/Applications"
+DEFAULT_CONFIG_DIR = ".config/badgerdrop"
+
+# Timeouts (seconds)
+PROCESS_TERMINATE_TIMEOUT = 5
+
+# Settings defaults
+DEFAULT_PLAY_SOUND = True
+DEFAULT_SOUND_THEME = "default"
+DEFAULT_AUTO_MAKE_EXECUTABLE = True
+DEFAULT_SHOW_NOTIFICATIONS = True

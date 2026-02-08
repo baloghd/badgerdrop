@@ -1,9 +1,11 @@
 """Track installed AppImages with metadata"""
 
 import json
-from pathlib import Path
 from dataclasses import dataclass, asdict
+from pathlib import Path
 from typing import List, Optional
+
+from .paths import get_config_dir, get_installed_registry_file
 
 
 @dataclass
@@ -25,9 +27,8 @@ class InstalledAppsManager:
     """Manage registry of installed AppImages"""
 
     def __init__(self):
-        self.config_dir = Path.home() / ".config" / "badgerdrop"
-        self.registry_file = self.config_dir / "installed.json"
-        self.config_dir.mkdir(parents=True, exist_ok=True)
+        self.config_dir = get_config_dir()
+        self.registry_file = get_installed_registry_file()
         self.apps: List[InstalledApp] = []
         self._load_registry()
 

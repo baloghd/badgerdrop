@@ -5,115 +5,36 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Gtk, Adw, Gdk, GdkPixbuf, GLib, Gio, GObject
+from gi.repository import Gtk, Adw, Gdk, GdkPixbuf, GLib, Gio
 
-from .drag_content import AppImageDragContent
+import gettext
 from pathlib import Path
 
+from .drag_content import AppImageDragContent
 from ..appimage import AppImageParser, AppImageInfo
 from ..installer import AppImageInstaller
 from ..settings import SettingsManager
-from ..sound import SoundManager, MockSoundManager
+from ..sound import SoundManager
 from .settings_dialog import SettingsDialog
 from .progress_dialog import InstallProgressDialog
-from ..main import _
+
+_ = gettext.gettext
 
 
-# CSS for the application appearance
-CSS_STYLES = """
-.drop-area {
-    border-radius: 24px;
-    border: 3px dashed alpha(@accent_color, 0.3);
-    padding: 48px;
-    transition: all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
+def load_css_styles():
+    """Load CSS styles from external stylesheet file"""
+    css_file = Path(__file__).parent / "styles.css"
 
-.drop-area.drag-over {
-    border-color: @accent_color;
-    border-style: solid;
-    transform: scale(1.02);
-}
+    if css_file.exists():
+        try:
+            return css_file.read_text()
+        except Exception:
+            return ""
+    return ""
 
-.app-icon-container {
-    background: @card_bg_color;
-    border-radius: 20px;
-    padding: 24px;
-    box-shadow: 0 8px 32px alpha(black, 0.15);
-    transition: all 350ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
 
-.app-icon-container:hover {
-    box-shadow: 0 12px 40px alpha(black, 0.2);
-    transform: translateY(-2px);
-}
-
-.app-icon-container.dragging {
-    background: alpha(@accent_bg_color, 0.2);
-    box-shadow: 0 16px 56px alpha(black, 0.3);
-    transform: scale(1.05) translateY(-4px);
-}
-
-.target-container {
-    background: @card_bg_color;
-    border-radius: 16px;
-    padding: 32px;
-    border: 2px solid alpha(@borders, 0.5);
-    transition: all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.target-container:hover {
-    box-shadow: 0 4px 20px alpha(black, 0.1);
-}
-
-.target-container.highlight {
-    background: alpha(@accent_bg_color, 0.15);
-    border-color: @accent_color;
-    border-style: dashed;
-    border-width: 3px;
-    box-shadow: 0 8px 32px alpha(@accent_color, 0.2);
-}
-
-.target-container.drop-ready {
-    background: alpha(@accent_bg_color, 0.3);
-    border-color: @accent_color;
-    border-style: solid;
-    transform: scale(1.08);
-    box-shadow: 0 16px 64px alpha(@accent_color, 0.4);
-}
-
-.title-label {
-    font-size: 24px;
-    font-weight: 700;
-}
-
-.subtitle-label {
-    font-size: 14px;
-    opacity: 0.7;
-}
-
-.arrow-label {
-    font-size: 48px;
-    opacity: 0.5;
-    font-weight: 200;
-    transition: opacity 300ms ease;
-}
-
-.arrow-label.active {
-    opacity: 0.8;
-}
-
-.success-toast {
-    background: @accent_bg_color;
-    color: @accent_fg_color;
-    border-radius: 12px;
-    padding: 16px 24px;
-    font-weight: 600;
-}
-
-.success-toast label {
-    font-size: 16px;
-}
-"""
+# Load CSS from external file
+CSS_STYLES = load_css_styles()
 
 
 class MainWindow(Adw.ApplicationWindow):
@@ -126,8 +47,8 @@ class MainWindow(Adw.ApplicationWindow):
         self.set_title("BadgerDrop")
         self.set_icon_name("badgerdrop")
 
-        self.current_appimage: Path = None
-        self.current_info: AppImageInfo = None
+        self.current_appimage: Path | None = None
+        self.current_info: AppImageInfo | None = None
         self.installed_app = None  # Track installed app for reveal button
         self.debug_mode = True  # Always enable debug for now
 
@@ -141,11 +62,14 @@ class MainWindow(Adw.ApplicationWindow):
     def _setup_css(self):
         """Load custom CSS styles"""
         provider = Gtk.CssProvider()
-        provider.load_from_data(CSS_STYLES.encode())
+        css_bytes = CSS_STYLES.encode()
+        provider.load_from_data(css_bytes)
 
-        Gtk.StyleContext.add_provider_for_display(
-            Gdk.Display.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-        )
+        display = Gdk.Display.get_default()
+        if display:
+            Gtk.StyleContext.add_provider_for_display(
+                display, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+            )
 
     def _build_ui(self):
         """Build the main UI"""
@@ -481,19 +405,21 @@ class MainWindow(Adw.ApplicationWindow):
 
         # Show progress dialog
         dialog = InstallProgressDialog(
-            parent=self,
-            app_name=self.current_info.name,
-            total_bytes=total_size
+            parent=self, app_name=self.current_info.name, total_bytes=total_size
         )
         dialog.present()
-        self._debug_print(f"Installing {self.current_appimage.name} ({total_size / 1024 / 1024:.1f} MB)")
+        self._debug_print(
+            f"Installing {self.current_appimage.name} ({total_size / 1024 / 1024:.1f} MB)"
+        )
 
         # Track installation result
         install_result = {"success": False, "error": None, "installed_app": None}
 
         def progress_callback(description: str, bytes_copied: int, total_bytes: int):
             """Update progress dialog from worker thread"""
-            GLib.idle_add(dialog.update_progress, description, bytes_copied, total_bytes)
+            GLib.idle_add(
+                dialog.update_progress, description, bytes_copied, total_bytes
+            )
 
         def install_worker():
             """Run installation in background thread"""
@@ -538,11 +464,13 @@ class MainWindow(Adw.ApplicationWindow):
             self._show_error(_("Installation failed: {}").format(error))
             if self.debug_mode:
                 import traceback
+
                 self._debug_print(traceback.format_exc())
             return False
 
         # Start installation in background thread
         import threading
+
         thread = threading.Thread(target=install_worker, daemon=True)
         thread.start()
 
@@ -550,7 +478,9 @@ class MainWindow(Adw.ApplicationWindow):
         """Add a button to reveal the installed app in file manager"""
         # Check if button already exists
         for child in self.drop_area.observe_children():
-            if isinstance(child, Gtk.Button) and child.get_label() == _("Show in Folder"):
+            if isinstance(child, Gtk.Button) and child.get_label() == _(
+                "Show in Folder"
+            ):
                 return
 
         reveal_btn = Gtk.Button(label=_("Show in Folder"))

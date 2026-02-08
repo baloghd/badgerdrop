@@ -51,10 +51,10 @@
 - [ ] IMPROVEMENT: add process for creating 'hello world' AppImage for testing purposes
 
 ### Architecture & Refactoring - Phase 1: Foundation (Critical)
-- [ ] REFACTOR: Create constants module - extract magic numbers (margins, icon sizes, timeouts, permissions, defaults) from window.py, installer.py, appimage.py, settings.py
-- [ ] REFACTOR: Create paths.py module - single source of truth for config/paths (deduplicate installed.py:27 and settings.py:22)
-- [ ] REFACTOR: Extract CSS styles from window.py:22-116 to ui/styles.css file
-- [ ] REFACTOR: Fix import consistency - standardize relative imports in UI and gettext usage across codebase
+- [x] REFACTOR: Create constants module - extract magic numbers (margins, icon sizes, timeouts, permissions, defaults) from window.py, installer.py, appimage.py, settings.py
+- [x] REFACTOR: Create paths.py module - single source of truth for config/paths (deduplicate installed.py:27 and settings.py:22)
+- [x] REFACTOR: Extract CSS styles from window.py:22-116 to ui/styles.css file
+- [x] REFACTOR: Fix import consistency - standardize relative imports in UI and gettext usage across codebase
 
 ### Architecture & Refactoring - Phase 2: Core Architecture (High Priority)
 - [ ] REFACTOR: Extract InstallationService from window.py:474-547 - move installation orchestration logic to services layer

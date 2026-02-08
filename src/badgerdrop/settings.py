@@ -1,28 +1,36 @@
 """Settings management for appimg"""
 
 import json
-from pathlib import Path
 from dataclasses import dataclass, asdict
+from pathlib import Path
+
+from .paths import get_config_dir, get_settings_file
+from .constants import (
+    DEFAULT_PLAY_SOUND,
+    DEFAULT_SOUND_THEME,
+    DEFAULT_AUTO_MAKE_EXECUTABLE,
+    DEFAULT_SHOW_NOTIFICATIONS,
+    DEFAULT_INSTALL_DIR,
+)
 
 
 @dataclass
 class AppSettings:
     """Application settings"""
 
-    play_sound_on_install: bool = True
-    sound_theme: str = "default"  # Can be "default", "glass", "bloop", etc.
-    auto_make_executable: bool = True  # Automatically make AppImages executable
-    show_notifications: bool = True  # Show system notifications
-    install_directory: str = "~/Applications"  # Installation directory for AppImages
+    play_sound_on_install: bool = DEFAULT_PLAY_SOUND
+    sound_theme: str = DEFAULT_SOUND_THEME
+    auto_make_executable: bool = DEFAULT_AUTO_MAKE_EXECUTABLE
+    show_notifications: bool = DEFAULT_SHOW_NOTIFICATIONS
+    install_directory: str = DEFAULT_INSTALL_DIR
 
 
 class SettingsManager:
     """Manage application settings"""
 
     def __init__(self):
-        self.config_dir = Path.home() / ".config" / "badgerdrop"
-        self.config_dir.mkdir(parents=True, exist_ok=True)
-        self.settings_file = self.config_dir / "settings.json"
+        self.config_dir = get_config_dir()
+        self.settings_file = get_settings_file()
         self._settings = self._load()
 
     def _load(self) -> AppSettings:
