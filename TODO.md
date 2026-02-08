@@ -62,17 +62,17 @@
 - [x] REFACTOR: Create services/appimage_service.py - extract AppImage parsing from window.py:413-448
 
 ### Architecture & Refactoring - Phase 3: Clean Up (Medium Priority)
-- [ ] REFACTOR: Implement proper logging - replace debug print() patterns with Python logging module
-- [ ] REFACTOR: Create utils/validators.py - extract directory validation from settings_dialog.py:209-235
-- [ ] REFACTOR: Create utils/desktop.py - extract file manager integration from window.py:549-575
-- [ ] REFACTOR: Clean settings_dialog.py - remove commented-out code at lines 46-49
+- [x] REFACTOR: Implement proper logging - replace debug print() patterns with Python logging module
+- [x] REFACTOR: Create utils/validators.py - extract directory validation from settings_dialog.py:209-235
+- [x] REFACTOR: Create utils/desktop.py - extract file manager integration from window.py:549-575
+- [x] REFACTOR: Clean settings_dialog.py - remove commented-out code at lines 46-49
 
 ### Architecture & Refactoring - Phase 4: CLI & Dead Code (Lower Priority)
 - [ ] REFACTOR: Extract CLI commands to cli/commands.py - move CLI entry points from main.py
 - [ ] REFACTOR: Remove or implement _is_electron_app() dead code in installer.py:176-193
 
 ### Bugs & Issues
-- [ ] IMPROVEMENT: add logging for debugging purposes instead of print statements
+- [x] IMPROVEMENT: add logging for debugging purposes instead of print statements
 - [ ] BUG: 'make executable' should only be applied to the installed file if the user does not choose to install
 - [ ] BUG: when uninstalling the dpkg, I get:
   ```

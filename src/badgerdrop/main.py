@@ -2,6 +2,7 @@
 
 import sys
 import gi
+import logging
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
@@ -14,6 +15,9 @@ _ = gettext.gettext
 
 from .appimage import AppImageParser
 from .ui.window import MainWindow
+
+# Setup logging
+logger = logging.getLogger("badgerdrop")
 
 
 class AppImgApp(Adw.Application):
@@ -48,6 +52,11 @@ class AppImgApp(Adw.Application):
 
 
 def main():
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
     app = AppImgApp()
     return app.run(sys.argv)
 
@@ -60,26 +69,27 @@ def debug_main():
     parser.add_argument("--appimage", "-a", required=True, help="Path to AppImage file")
     args = parser.parse_args()
 
-    print("\n=== AppImage Debug Analysis ===\n")
-    print(f"File: {args.appimage}\n")
+    logger.info("=== AppImage Debug Analysis ===")
+    logger.info("File: %s", args.appimage)
 
     try:
-        parser = AppImageParser(args.appimage, debug=True)
+        parser = AppImageParser(args.appimage)
         info = parser.parse()
 
-        print("\n\nSummary:")
-        print(f"  Name: {info.name}")
-        print(f"  Icon: {info.icon_name} ({info.icon_path})")
-        print(
-            f"  Categories: {', '.join(info.categories) if info.categories else 'None'}"
+        logger.info("Summary:")
+        logger.info("  Name: %s", info.name)
+        logger.info("  Icon: %s (%s)", info.icon_name, info.icon_path)
+        logger.info(
+            "  Categories: %s",
+            ", ".join(info.categories) if info.categories else "None",
         )
-        print(f"  Comment: {info.comment}")
+        logger.info("  Comment: %s", info.comment)
 
         info.cleanup()
-        print("\nCleanup complete.\n")
+        logger.info("Cleanup complete.")
 
     except Exception as e:
-        print(f"ERROR: {e}")
+        logger.error("ERROR: %s", e)
         return 1
 
     return 0
@@ -93,25 +103,25 @@ def list_main():
     apps = manager.get_all()
 
     if not apps:
-        print("No AppImages installed.")
-        print(f"\nInstall location: {Path.home() / 'Applications'}")
+        logger.info("No AppImages installed.")
+        logger.info("Install location: %s", Path.home() / "Applications")
         return 0
 
-    print(f"\n=== Installed AppImages ({len(apps)}) ===\n")
+    logger.info("=== Installed AppImages (%d) ===", len(apps))
 
     for app in apps:
-        print(f"📦 {app.name}")
+        logger.info("📦 %s", app.name)
         if app.version:
-            print(f"   Version: {app.version}")
-        print(f"   Source: {app.source_path}")
-        print(f"   Installed: {app.install_path}")
-        print(f"   Date: {app.install_date}")
+            logger.info("   Version: %s", app.version)
+        logger.info("   Source: %s", app.source_path)
+        logger.info("   Installed: %s", app.install_path)
+        logger.info("   Date: %s", app.install_date)
         if app.categories:
-            print(f"   Categories: {', '.join(app.categories)}")
-        print()
+            logger.info("   Categories: %s", ", ".join(app.categories))
+        logger.info("")
 
-    print(f"Registry: {manager.registry_file}")
-    print(f"Apps folder: {Path.home() / 'Applications'}")
+    logger.info("Registry: %s", manager.registry_file)
+    logger.info("Apps folder: %s", Path.home() / "Applications")
     return 0
 
 
@@ -125,7 +135,7 @@ def sound_toggle_main():
     settings.play_sound = new_value
 
     status = "ON" if new_value else "OFF"
-    print(f"Sound notifications: {status}")
-    print(f"Settings saved to: {settings.settings_file}")
+    logger.info("Sound notifications: %s", status)
+    logger.info("Settings saved to: %s", settings.settings_file)
 
     return 0

@@ -9,8 +9,11 @@ from dataclasses import dataclass
 from typing import Optional
 import configparser
 import gettext
+import logging
 
 _ = gettext.gettext
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -62,8 +65,7 @@ class AppImageParser:
         """Extract all metadata from the AppImage"""
         self._temp_dir = Path(tempfile.mkdtemp(prefix="badgerdrop_"))
 
-        if self.debug:
-            print(f"[DEBUG] Mounting AppImage to: {self._temp_dir}")
+        logger.debug("Mounting AppImage to: %s", self._temp_dir)
 
         # Mount AppImage instead of extracting
         self._mount_appimage()
@@ -95,8 +97,7 @@ class AppImageParser:
         """Mount AppImage using --appimage-mount"""
         # Check if file is executable, make it executable if needed
         if not os.access(self.appimage_path, os.X_OK):
-            if self.debug:
-                print(f"[DEBUG] Making AppImage executable: {self.appimage_path}")
+            logger.debug("Making AppImage executable: %s", self.appimage_path)
             try:
                 self.appimage_path.chmod(self.appimage_path.stat().st_mode | 0o111)
             except PermissionError as e:
@@ -129,8 +130,7 @@ class AppImageParser:
                     f"Failed to get mount point from AppImage. Stderr: {stderr_output}"
                 )
             self._mount_point = Path(mount_point_line)
-            if self.debug:
-                print(f"[DEBUG] AppImage mounted at: {self._mount_point}")
+            logger.debug("AppImage mounted at: %s", self._mount_point)
         except Exception as e:
             if self._mount_proc.poll() is None:
                 self._mount_proc.kill()
@@ -158,8 +158,7 @@ class AppImageParser:
 
         desktop_file = desktop_files[0]
 
-        if self.debug:
-            print(f"[DEBUG] Found .desktop file: {desktop_file}")
+        logger.debug("Found .desktop file: %s", desktop_file)
 
         parser = configparser.ConfigParser(interpolation=None)
         parser.optionxform = str  # Preserve case
@@ -230,31 +229,30 @@ class AppImageParser:
 
         for path in search_paths:
             if path.exists():
-                if self.debug:
-                    print(f"[DEBUG] Found icon: {path}")
+                logger.debug("Found icon: %s", path)
                 return path
 
-        if self.debug:
-            print(f"[DEBUG] Icon not found: {icon_name}")
+        logger.debug("Icon not found: %s", icon_name)
         return None
 
     def _debug_print(self, info: AppImageInfo):
         """Print debug information about extracted AppImage"""
-        print("\n" + "=" * 60)
-        print("[DEBUG] AppImage Analysis Results")
-        print("=" * 60)
-        print("\n[METADATA]")
-        print(f"  File: {self.appimage_path}")
-        print(f"  Name: {info.name}")
-        print(f"  Exec: {info.exec_cmd}")
-        print(f"  Icon: {info.icon_name}")
-        print(f"  Icon Path: {info.icon_path}")
-        print(
-            f"  Categories: {', '.join(info.categories) if info.categories else 'None'}"
+        logger.debug("\n" + "=" * 60)
+        logger.debug("AppImage Analysis Results")
+        logger.debug("=" * 60)
+        logger.debug("\n[METADATA]")
+        logger.debug("  File: %s", self.appimage_path)
+        logger.debug("  Name: %s", info.name)
+        logger.debug("  Exec: %s", info.exec_cmd)
+        logger.debug("  Icon: %s", info.icon_name)
+        logger.debug("  Icon Path: %s", info.icon_path)
+        logger.debug(
+            "  Categories: %s",
+            ", ".join(info.categories) if info.categories else "None",
         )
-        print(f"  Comment: {info.comment}")
-        print(f"  Version: {info.version if info.version else 'Not specified'}")
-        print(f"  Temp Dir: {info.temp_extract_dir}")
-        print("\n[DESKTOP FILE CONTENT]")
-        print(info.desktop_file_content)
-        print("=" * 60 + "\n")
+        logger.debug("  Comment: %s", info.comment)
+        logger.debug("  Version: %s", info.version if info.version else "Not specified")
+        logger.debug("  Temp Dir: %s", info.temp_extract_dir)
+        logger.debug("\n[DESKTOP FILE CONTENT]")
+        logger.debug("%s", info.desktop_file_content)
+        logger.debug("=" * 60 + "\n")

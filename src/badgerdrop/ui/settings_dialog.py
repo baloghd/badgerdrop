@@ -1,6 +1,6 @@
 """Settings dialog for appimg"""
 
-import os
+import logging
 from pathlib import Path
 
 import gi
@@ -10,6 +10,9 @@ gi.require_version("Adw", "1")
 from gi.repository import Gtk, Gio
 
 from ..settings import SettingsManager
+from ..utils.validators import DirectoryValidationError, validate_directory
+
+logger = logging.getLogger(__name__)
 
 
 class SettingsDialog(Gtk.Dialog):
@@ -43,10 +46,6 @@ class SettingsDialog(Gtk.Dialog):
         content_area.append(settings_box)
 
         # Section: Notifications
-        # section_label = Gtk.Label(label="Notifications")
-        # section_label.add_css_class("title-2")
-        # section_label.set_halign(Gtk.Align.START)
-        # settings_box.append(section_label)
         sound_section = Gtk.Label(label="Notifications")
         sound_section.add_css_class("title-2")
         sound_section.set_halign(Gtk.Align.START)
@@ -200,39 +199,14 @@ class SettingsDialog(Gtk.Dialog):
             file = dialog.select_folder_finish(result)
             if file:
                 path = file.get_path()
-                if self._validate_directory(path):
+                try:
+                    validate_directory(path)
                     self.settings.install_directory = path
                     self.path_label.set_label(path)
+                except DirectoryValidationError as e:
+                    self._show_error(str(e))
         except Exception as e:
-            print(f"Error selecting folder: {e}")
-
-    def _validate_directory(self, path: str) -> bool:
-        """Validate that the directory path is valid and writable"""
-        from pathlib import Path
-
-        path_obj = Path(path).expanduser()
-
-        # Check if path is absolute
-        if not path_obj.is_absolute():
-            self._show_error("Please select an absolute path")
-            return False
-
-        # Check if path exists and is a directory
-        if path_obj.exists() and not path_obj.is_dir():
-            self._show_error("Selected path is not a directory")
-            return False
-
-        # Check if parent directory is writable (if path doesn't exist)
-        if not path_obj.exists():
-            parent = path_obj.parent
-            if not parent.exists() or not os.access(str(parent), os.W_OK):
-                self._show_error("Parent directory is not writable")
-                return False
-        elif not os.access(str(path_obj), os.W_OK):
-            self._show_error("Directory is not writable")
-            return False
-
-        return True
+            logger.error("Error selecting folder: %s", e)
 
     def _show_error(self, message: str):
         """Show an error dialog"""
@@ -243,7 +217,7 @@ class SettingsDialog(Gtk.Dialog):
             buttons=Gtk.ButtonsType.OK,
             text="Invalid Directory",
         )
-        error_dialog.set_secondary_text(message)
+        error_dialog.format_secondary_text(message)
         error_dialog.connect("response", lambda d, r: d.destroy())
         error_dialog.show()
 

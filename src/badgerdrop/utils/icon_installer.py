@@ -1,7 +1,10 @@
-"""Icon installation service for AppImages."""
+"""Icon installation utilities for AppImages."""
 
+import logging
 import shutil
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 class IconInstallerError(Exception):
@@ -11,21 +14,19 @@ class IconInstallerError(Exception):
 
 
 class IconInstaller:
-    """Service for installing application icons to the user's icon directory.
+    """Utility for installing application icons to the user's icon directory.
 
     Handles installation of both SVG and PNG icons to the appropriate
     hicolor icon theme directories.
     """
 
-    def __init__(self, icons_dir: Path, debug: bool = False):
+    def __init__(self, icons_dir: Path):
         """Initialize the icon installer.
 
         Args:
             icons_dir: Base directory for icons (typically ~/.local/share/icons/hicolor)
-            debug: Enable debug output
         """
         self.icons_dir = icons_dir
-        self.debug = debug
 
     def install_icon(self, icon_path: Path, icon_name: str) -> Path:
         """Install an icon to the user's icon directory.
@@ -55,8 +56,7 @@ class IconInstaller:
         target_dir.mkdir(parents=True, exist_ok=True)
         target_path = target_dir / target_name
 
-        if self.debug:
-            print(f"[DEBUG] Installing icon: {target_path}")
+        logger.debug("Installing icon: %s", target_path)
 
         try:
             shutil.copy2(icon_path, target_path)

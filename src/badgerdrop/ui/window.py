@@ -8,6 +8,7 @@ gi.require_version("Adw", "1")
 from gi.repository import Gtk, Adw, Gdk, GdkPixbuf, GLib, Gio
 
 import gettext
+import logging
 from pathlib import Path
 
 from .drag_content import AppImageDragContent
@@ -15,10 +16,13 @@ from ..appimage import AppImageInfo
 from ..services import AppImageService, InstallationService
 from ..settings import SettingsManager
 from ..sound import SoundManager
+from ..utils import DesktopIntegration
 from .settings_dialog import SettingsDialog
 from .progress_dialog import InstallProgressDialog
 
 _ = gettext.gettext
+
+logger = logging.getLogger(__name__)
 
 
 def load_css_styles():
@@ -483,11 +487,11 @@ class MainWindow(Adw.ApplicationWindow):
 
         install_path = Path(self.installed_app.install_path)
         if install_path.exists():
-            # Use xdg-open to reveal the file
-            import subprocess
-
-            subprocess.run(["xdg-open", str(install_path.parent)])
-            self._debug_print(f"Opened folder: {install_path.parent}")
+            try:
+                DesktopIntegration.reveal_in_file_manager(install_path)
+                logger.debug("Opened folder: %s", install_path.parent)
+            except Exception as e:
+                logger.error("Failed to open folder: %s", e)
 
     def _reset_ui(self):
         """Reset the UI to initial state"""
@@ -523,8 +527,8 @@ class MainWindow(Adw.ApplicationWindow):
         # Auto-scroll
         self.debug_text.scroll_to_iter(self.debug_buffer.get_end_iter(), 0, False, 0, 0)
 
-        # Also print to console
-        print(message)
+        # Log at debug level
+        logger.debug(message)
 
     def _show_success(self, message: str):
         """Show a success toast"""

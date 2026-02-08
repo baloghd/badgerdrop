@@ -1,21 +1,21 @@
 """Installation logic for AppImages"""
 
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Callable, Optional
 
 from .appimage import AppImageInfo
 from .installed import InstalledApp, InstalledAppsManager
-from .services.desktop_manager import DesktopManager
-from .services.file_copier import FileCopier
-from .services.icon_installer import IconInstaller
+from .utils import DesktopManager, FileCopier, IconInstaller
+
+logger = logging.getLogger(__name__)
 
 
 class AppImageInstaller:
     """Install AppImages to the user's system"""
 
-    def __init__(self, debug: bool = False, install_dir: Optional[Path] = None):
-        self.debug = debug
+    def __init__(self, install_dir: Optional[Path] = None):
         self.apps_dir = (
             install_dir.expanduser() if install_dir else Path.home() / "Applications"
         )
@@ -24,12 +24,10 @@ class AppImageInstaller:
         self.icons_dir = self.local_share / "icons" / "hicolor"
         self.registry = InstalledAppsManager()
 
-        # Initialize service components
-        self._file_copier = FileCopier(debug=debug)
-        self._icon_installer = IconInstaller(self.icons_dir, debug=debug)
-        self._desktop_manager = DesktopManager(
-            self.applications_dir, self.icons_dir, debug=debug
-        )
+        # Initialize utility components
+        self._file_copier = FileCopier()
+        self._icon_installer = IconInstaller(self.icons_dir)
+        self._desktop_manager = DesktopManager(self.applications_dir, self.icons_dir)
 
     def install(
         self,
@@ -60,8 +58,7 @@ class AppImageInstaller:
         safe_name = self._desktop_manager._sanitize_filename(info.name)
         desktop_file = self.applications_dir / f"{safe_name}.desktop"
 
-        if self.debug:
-            print(f"[DEBUG] Installing to: {target_appimage}")
+        logger.debug("Installing to: %s", target_appimage)
 
         try:
             # Copy AppImage with progress
@@ -72,13 +69,11 @@ class AppImageInstaller:
             # Make executable if requested
             if make_executable:
                 target_appimage.chmod(0o755)
-                if self.debug:
-                    print(f"[DEBUG] Made {target_appimage} executable")
+                logger.debug("Made %s executable", target_appimage)
             else:
-                if self.debug:
-                    print(
-                        f"[DEBUG] Skipped making {target_appimage} executable (user preference)"
-                    )
+                logger.debug(
+                    "Skipped making %s executable (user preference)", target_appimage
+                )
 
             # Install icon if found
             if info.icon_path:
@@ -104,12 +99,10 @@ class AppImageInstaller:
             )
             self.registry.add(installed_app)
 
-            if self.debug:
-                print(f"[DEBUG] Successfully installed {info.name}")
+            logger.info("Successfully installed %s", info.name)
 
             return installed_app
 
         except Exception as e:
-            if self.debug:
-                print(f"[DEBUG] Installation failed: {e}")
+            logger.error("Installation failed: %s", e)
             raise

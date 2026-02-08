@@ -1,7 +1,10 @@
-"""File copying service with progress tracking."""
+"""File copying utilities with progress tracking."""
 
+import logging
 from pathlib import Path
-from typing import Optional, Callable
+from typing import Callable, Optional
+
+logger = logging.getLogger(__name__)
 
 
 class FileCopierError(Exception):
@@ -11,19 +14,11 @@ class FileCopierError(Exception):
 
 
 class FileCopier:
-    """Service for copying files with optional progress tracking.
+    """Utility for copying files with optional progress tracking.
 
-    This service handles file copying operations with support for progress
+    This utility handles file copying operations with support for progress
     callbacks, useful for large files like AppImages.
     """
-
-    def __init__(self, debug: bool = False):
-        """Initialize the file copier service.
-
-        Args:
-            debug: Enable debug output
-        """
-        self.debug = debug
 
     def copy_with_progress(
         self,
@@ -49,8 +44,7 @@ class FileCopier:
         total_size = src.stat().st_size
         copied = 0
 
-        if self.debug:
-            print(f"[DEBUG] Copying {src} ({total_size} bytes) to {dst}")
+        logger.debug("Copying %s (%d bytes) to %s", src, total_size, dst)
 
         try:
             with open(src, "rb") as fsrc, open(dst, "wb") as fdst:
@@ -66,5 +60,4 @@ class FileCopier:
         except Exception as e:
             raise FileCopierError(f"Failed to copy file: {e}") from e
 
-        if self.debug:
-            print(f"[DEBUG] Copy complete: {copied} bytes copied")
+        logger.debug("Copy complete: %d bytes copied", copied)

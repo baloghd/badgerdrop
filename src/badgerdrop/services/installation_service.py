@@ -1,5 +1,6 @@
 """Installation orchestration service for AppImages."""
 
+import logging
 import threading
 import traceback
 from pathlib import Path
@@ -8,6 +9,8 @@ from typing import Callable, Optional
 from ..appimage import AppImageInfo
 from ..installer import AppImageInstaller
 from ..installed import InstalledApp
+
+logger = logging.getLogger(__name__)
 
 
 class InstallationServiceError(Exception):
@@ -62,7 +65,7 @@ class InstallationService:
         def install_worker():
             """Run installation in background thread."""
             try:
-                installer = AppImageInstaller(debug=self.debug)
+                installer = AppImageInstaller()
                 installed_app = installer.install(
                     str(appimage_path),
                     info,
@@ -71,8 +74,8 @@ class InstallationService:
                 )
                 success_callback(installed_app)
             except Exception as e:
+                logger.error("Installation failed: %s", e)
                 if self.debug:
-                    print(f"[DEBUG] Installation failed: {e}")
                     traceback.print_exc()
                 error_callback(e)
             finally:
@@ -83,5 +86,4 @@ class InstallationService:
         thread = threading.Thread(target=install_worker, daemon=True)
         thread.start()
 
-        if self.debug:
-            print(f"[DEBUG] Started installation thread for {appimage_path.name}")
+        logger.debug("Started installation thread for %s", appimage_path.name)
