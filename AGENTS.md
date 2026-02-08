@@ -166,3 +166,6 @@ Python packages:
 - This is a GUI application - always consider thread safety when updating UI
 - AppImages are executed and parsed to extract metadata
 - Sound playback requires optional dependencies
+- After doing any significant changes, run `make format` and `make check` to ensure code quality
+- After doing any significant changes, run `make test` to ensure functionality is intact
+- After doing any significant changes, if there are a correspoding TODO in TODO.md, mark it as done

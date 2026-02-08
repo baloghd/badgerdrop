@@ -74,3 +74,25 @@
 ### Bugs & Issues
 - [ ] IMPROVEMENT: add logging for debugging purposes instead of print statements
 - [ ] BUG: 'make executable' should only be applied to the installed file if the user does not choose to install
+- [ ] BUG: when uninstalling the dpkg, I get:
+  ```
+  (badgerdrop) ➜ xcvb@t14  ~/badgerdrop git:(main) ✗ sudo apt remove badgerdrop
+  Reading package lists... Done
+  Building dependency tree... Done
+  Reading state information... Done
+  The following packages will be REMOVED:
+  badgerdrop
+  0 upgraded, 0 newly installed, 1 to remove and 12 not upgraded.
+  After this operation, 0 B of additional disk space will be used.
+  Do you want to continue? [Y/n] y
+  (Reading database ... 514681 files and directories currently installed.)
+  Removing badgerdrop (0.1.0) ...
+  dpkg: warning: while removing badgerdrop, directory '/usr/lib/python3/dist-packages/badgerdrop/ui/__pycache__' not empty so not removed
+  dpkg: warning: while removing badgerdrop, directory '/usr/lib/python3/dist-packages/badgerdrop/__pycache__' not empty so not removed
+  Processing triggers for gnome-menus (3.36.0-1.1ubuntu3) ...
+  Processing triggers for shared-mime-info (2.4-4) ...
+  Processing triggers for mailcap (3.70+nmu1ubuntu1) ...
+  Processing triggers for desktop-file-utils (0.27-2build1) .
+  Processing triggers for mime-support (3.64ubuntu1) ...
+  ```
+  - This is because the postrm script only removes the main package files, not the __pycache__ directories. This is expected behavior and does not cause any issues.
