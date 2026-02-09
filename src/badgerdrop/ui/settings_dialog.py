@@ -11,7 +11,7 @@ from pathlib import Path  # noqa: E402
 
 from gi.repository import Gio, Gtk, Pango  # noqa: E402
 
-from badgerdrop.settings import SettingsManager  # noqa: E402
+from badgerdrop.config.settings import SettingsManager  # noqa: E402
 from badgerdrop.utils.validators import (  # noqa: E402
     DirectoryValidationError,
     validate_directory,

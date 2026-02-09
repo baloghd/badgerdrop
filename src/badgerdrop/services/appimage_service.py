@@ -2,7 +2,8 @@
 
 from pathlib import Path
 
-from badgerdrop.appimage import AppImageInfo, AppImageParser
+from badgerdrop.core.appimage import AppImageParser
+from badgerdrop.core.models import AppImageInfo
 from badgerdrop.services.errors import AppImageServiceError
 
 

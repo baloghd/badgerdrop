@@ -6,9 +6,8 @@ import traceback
 from collections.abc import Callable
 from pathlib import Path
 
-from badgerdrop.appimage import AppImageInfo
-from badgerdrop.installed import InstalledApp
-from badgerdrop.installer import AppImageInstaller
+from badgerdrop.core.models import AppImageInfo, InstalledApp
+from badgerdrop.install.installer import AppImageInstaller
 from badgerdrop.services.errors import InstallationServiceError
 
 logger = logging.getLogger(__name__)

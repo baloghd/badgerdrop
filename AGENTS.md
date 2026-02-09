@@ -93,10 +93,11 @@ class App(Adw.Application):
 - Use `import gettext` and `_ = gettext.gettext("badgerdrop")`
 - Wrap user-visible strings: `_("Install Complete")`
 
-#### Data Classes
-- Use `@dataclass` for data structures (`AppSettings`, `AppImageInfo`)
-- Include type hints for all fields
-- Use `field(default_factory=list)` for mutable defaults
+#### Data Models
+- Use **Pydantic 2.0** models for all data structures (`AppSettings`, `AppImageInfo`, `InstalledApp`)
+- All models in `core/models.py`
+- Pydantic provides validation, serialization, and type safety
+- Use `list[T]` instead of `field(default_factory=list)` - Pydantic handles defaults
 
 #### Error Handling
 - Use try/except with specific exceptions
@@ -106,21 +107,34 @@ class App(Adw.Application):
 ### File Organization
 ```
 src/badgerdrop/
+├── core/               # Core domain models and AppImage parsing
+│   ├── __init__.py
+│   ├── models.py       # Pydantic models (AppImageInfo, InstalledApp, AppSettings)
+│   └── appimage.py     # AppImage parsing logic
+├── config/             # Configuration and paths
+│   ├── __init__.py
+│   ├── constants.py    # Application constants
+│   ├── paths.py        # Path utilities
+│   └── settings.py     # Settings persistence with Pydantic
+├── install/            # Installation and registry
+│   ├── __init__.py
+│   ├── installer.py    # AppImageInstaller
+│   └── registry.py     # InstalledAppsManager
+├── system/             # System integration
+│   ├── __init__.py
+│   ├── notifications.py
+│   └── sound.py
+├── ui/                 # GUI components
+│   ├── __init__.py
+│   ├── window.py
+│   ├── drag_content.py
+│   ├── progress_dialog.py
+│   └── settings_dialog.py
+├── services/           # Business logic services
+├── utils/              # Utility modules
 ├── __init__.py         # Exports and version
 ├── __main__.py         # Entry point
-├── main.py             # Application class
-├── appimage.py         # AppImage parsing logic
-├── installer.py        # Installation logic
-├── installed.py        # Installed apps management
-├── settings.py         # Settings persistence
-├── sound.py            # Sound management
-├── notifications.py    # Notification system
-└── ui/
-    ├── __init__.py
-    ├── window.py       # Main window
-    ├── drag_content.py # Drag/drop handling
-    ├── progress_dialog.py
-    └── settings_dialog.py
+└── main.py             # Application class
 ```
 
 ### Settings Storage

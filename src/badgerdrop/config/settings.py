@@ -1,34 +1,16 @@
-"""Settings management for appimg"""
+"""Settings management for BadgerDrop"""
 
 import json
-from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from badgerdrop.constants import (
-    DEFAULT_AUTO_MAKE_EXECUTABLE,
-    DEFAULT_INSTALL_DIR,
-    DEFAULT_PLAY_SOUND,
-    DEFAULT_SHOW_NOTIFICATIONS,
-    DEFAULT_SOUND_THEME,
-)
-from badgerdrop.paths import get_config_dir, get_settings_file
-
-
-@dataclass
-class AppSettings:
-    """Application settings"""
-
-    play_sound_on_install: bool = DEFAULT_PLAY_SOUND
-    sound_theme: str = DEFAULT_SOUND_THEME
-    auto_make_executable: bool = DEFAULT_AUTO_MAKE_EXECUTABLE
-    show_notifications: bool = DEFAULT_SHOW_NOTIFICATIONS
-    install_directory: str = DEFAULT_INSTALL_DIR
+from badgerdrop.config.paths import get_config_dir, get_settings_file
+from badgerdrop.core.models import AppSettings
 
 
 class SettingsManager:
-    """Manage application settings"""
+    """Manage application settings using Pydantic models"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.config_dir = get_config_dir()
         self.settings_file = get_settings_file()
         self._settings = self._load()
@@ -39,22 +21,22 @@ class SettingsManager:
             try:
                 with open(self.settings_file) as f:
                     data = json.load(f)
-                return AppSettings(**data)
-            except (json.JSONDecodeError, TypeError):
+                return AppSettings.model_validate(data)
+            except (json.JSONDecodeError, TypeError, ValueError):
                 pass
         return AppSettings()
 
-    def save(self):
+    def save(self) -> None:
         """Save settings to file"""
         with open(self.settings_file, "w") as f:
-            json.dump(asdict(self._settings), f, indent=2)
+            json.dump(self._settings.model_dump(), f, indent=2)
 
     @property
     def play_sound(self) -> bool:
         return self._settings.play_sound_on_install
 
     @play_sound.setter
-    def play_sound(self, value: bool):
+    def play_sound(self, value: bool) -> None:
         self._settings.play_sound_on_install = value
         self.save()
 
@@ -63,7 +45,7 @@ class SettingsManager:
         return self._settings.sound_theme
 
     @sound_theme.setter
-    def sound_theme(self, value: str):
+    def sound_theme(self, value: str) -> None:
         self._settings.sound_theme = value
         self.save()
 
@@ -72,7 +54,7 @@ class SettingsManager:
         return self._settings.auto_make_executable
 
     @auto_make_executable.setter
-    def auto_make_executable(self, value: bool):
+    def auto_make_executable(self, value: bool) -> None:
         self._settings.auto_make_executable = value
         self.save()
 
@@ -81,7 +63,7 @@ class SettingsManager:
         return self._settings.show_notifications
 
     @show_notifications.setter
-    def show_notifications(self, value: bool):
+    def show_notifications(self, value: bool) -> None:
         self._settings.show_notifications = value
         self.save()
 
@@ -90,7 +72,7 @@ class SettingsManager:
         return self._settings.install_directory
 
     @install_directory.setter
-    def install_directory(self, value: str):
+    def install_directory(self, value: str) -> None:
         self._settings.install_directory = value
         self.save()
 

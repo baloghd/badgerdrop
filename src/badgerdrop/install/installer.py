@@ -5,8 +5,8 @@ from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
 
-from badgerdrop.appimage import AppImageInfo
-from badgerdrop.installed import InstalledApp, InstalledAppsManager
+from badgerdrop.config.constants import PERMISSION_EXECUTABLE
+from badgerdrop.core.models import AppImageInfo, InstalledApp
 from badgerdrop.utils import DesktopManager, FileCopier, IconInstaller
 
 logger = logging.getLogger(__name__)
@@ -15,19 +15,18 @@ logger = logging.getLogger(__name__)
 class AppImageInstaller:
     """Install AppImages to the user's system"""
 
-    def __init__(self, install_dir: Path | None = None):
+    def __init__(self, install_dir: Path | None = None) -> None:
         self.apps_dir = (
             install_dir.expanduser() if install_dir else Path.home() / "Applications"
         )
         self.local_share = Path.home() / ".local" / "share"
         self.applications_dir = self.local_share / "applications"
         self.icons_dir = self.local_share / "icons" / "hicolor"
-        self.registry = InstalledAppsManager()
 
         # Initialize utility components
         self._file_copier = FileCopier()
         self._icon_installer = IconInstaller(self.icons_dir)
-        self._desktop_manager = DesktopManager(self.applications_dir, self.icons_dir)
+        self._desktop_manager = DesktopManager(self.applications_dir)
 
     def install(
         self,
@@ -68,7 +67,7 @@ class AppImageInstaller:
 
             # Make executable if requested
             if make_executable:
-                target_appimage.chmod(0o755)
+                target_appimage.chmod(PERMISSION_EXECUTABLE)
                 logger.debug("Made %s executable", target_appimage)
             else:
                 logger.debug(
@@ -80,12 +79,19 @@ class AppImageInstaller:
                 self._icon_installer.install_icon(info.icon_path, info.icon_name)
 
             # Create .desktop file
-            self._desktop_manager.create_desktop_entry(target_appimage, info)
+            self._desktop_manager.create_desktop_entry(
+                target_appimage,
+                info.name,
+                info.exec_cmd,
+                info.icon_name,
+                info.categories,
+                info.comment,
+            )
 
             # Update desktop database
             self._desktop_manager.update_desktop_database()
 
-            # Register in registry
+            # Create installed app record
             installed_app = InstalledApp(
                 name=info.name,
                 version=info.version or "unknown",
@@ -97,7 +103,6 @@ class AppImageInstaller:
                 comment=info.comment,
                 desktop_file=str(desktop_file),
             )
-            self.registry.add(installed_app)
 
             logger.info("Successfully installed %s", info.name)
 

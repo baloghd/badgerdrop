@@ -1,58 +1,47 @@
 """Track installed AppImages with metadata"""
 
 import json
-from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from badgerdrop.paths import get_config_dir, get_installed_registry_file
+from badgerdrop.config.paths import get_config_dir, get_installed_registry_file
+from badgerdrop.core.models import InstalledApp
 
 
-@dataclass
-class InstalledApp:
-    """Metadata about an installed AppImage"""
-
-    name: str
-    version: str
-    source_path: str  # Original file location
-    install_path: str  # Where it was copied to
-    icon_name: str
-    categories: list[str]
-    install_date: str
-    comment: str | None = None
-    desktop_file: str | None = None
-
-
-class InstalledAppsManager:
+class InstalledAppRegistry:
     """Manage registry of installed AppImages"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.config_dir = get_config_dir()
         self.registry_file = get_installed_registry_file()
         self.apps: list[InstalledApp] = []
         self._load_registry()
 
-    def _load_registry(self):
+    def _load_registry(self) -> None:
         """Load installed apps from registry file"""
         if self.registry_file.exists():
             try:
-                data = json.loads(self.registry_file.read_text())
-                self.apps = [InstalledApp(**app) for app in data.get("apps", [])]
-            except (json.JSONDecodeError, TypeError):
+                with open(self.registry_file) as f:
+                    data = json.load(f)
+                self.apps = [
+                    InstalledApp.model_validate(app) for app in data.get("apps", [])
+                ]
+            except (json.JSONDecodeError, TypeError, ValueError):
                 self.apps = []
 
-    def _save_registry(self):
+    def _save_registry(self) -> None:
         """Save installed apps to registry file"""
-        data = {"apps": [asdict(app) for app in self.apps]}
-        self.registry_file.write_text(json.dumps(data, indent=2))
+        data = {"apps": [app.model_dump() for app in self.apps]}
+        with open(self.registry_file, "w") as f:
+            json.dump(data, f, indent=2)
 
-    def add(self, app: InstalledApp):
+    def add(self, app: InstalledApp) -> None:
         """Add an app to the registry"""
         # Remove any existing entry with same install_path
         self.apps = [a for a in self.apps if a.install_path != app.install_path]
         self.apps.append(app)
         self._save_registry()
 
-    def remove(self, install_path: str):
+    def remove(self, install_path: str) -> None:
         """Remove an app from the registry"""
         self.apps = [a for a in self.apps if a.install_path != install_path]
         self._save_registry()

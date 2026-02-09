@@ -11,10 +11,10 @@ from pathlib import Path  # noqa: E402
 
 from gi.repository import Adw, Gdk, GdkPixbuf, Gio, GLib, Gtk  # noqa: E402
 
-from badgerdrop.appimage import AppImageInfo  # noqa: E402
+from badgerdrop.core.models import AppImageInfo  # noqa: E402
 from badgerdrop.services import AppImageService, InstallationService  # noqa: E402
-from badgerdrop.settings import SettingsManager  # noqa: E402
-from badgerdrop.sound import SoundManager  # noqa: E402
+from badgerdrop.config.settings import SettingsManager  # noqa: E402
+from badgerdrop.system.sound import SoundManager  # noqa: E402
 from badgerdrop.utils import DesktopIntegration  # noqa: E402
 from badgerdrop.ui.drag_content import AppImageDragContent  # noqa: E402
 from badgerdrop.ui.helpers import load_css_styles  # noqa: E402
@@ -49,7 +49,7 @@ class MainWindow(Adw.ApplicationWindow):
 
         # Initialize settings and sound
         self.settings = SettingsManager()
-        self.sound = SoundManager(self.settings)
+        self.sound = SoundManager()
 
         self._setup_css()
         self._build_ui()
@@ -433,7 +433,7 @@ class MainWindow(Adw.ApplicationWindow):
             if installed_app:
                 self.installed_app = installed_app
                 self._show_success(_("Installed {}").format(self.current_info.name))
-                self.sound.play_success()
+                self.sound.play_sound("success")
                 self._debug_print(f"Successfully installed {self.current_info.name}")
                 self._debug_print(f"Source: {self.current_appimage}")
                 self._debug_print(f"Installed to: {installed_app.install_path}")

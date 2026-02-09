@@ -15,7 +15,7 @@ from gi.repository import Adw, Gio
 
 _ = gettext.gettext
 
-from badgerdrop.appimage import AppImageParser
+from badgerdrop.core.appimage import AppImageParser
 from badgerdrop.ui.window import MainWindow
 
 # Setup logging
@@ -99,9 +99,9 @@ def debug_main():
 
 def list_main():
     """List all installed AppImages"""
-    from badgerdrop.installed import InstalledAppsManager
+    from badgerdrop.install.registry import InstalledAppRegistry
 
-    manager = InstalledAppsManager()
+    manager = InstalledAppRegistry()
     apps = manager.get_all()
 
     if not apps:
@@ -129,7 +129,7 @@ def list_main():
 
 def sound_toggle_main():
     """Toggle sound notifications on/off"""
-    from badgerdrop.settings import SettingsManager
+    from badgerdrop.config.settings import SettingsManager
 
     settings = SettingsManager()
 
