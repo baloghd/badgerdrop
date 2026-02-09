@@ -1,11 +1,10 @@
 """Track installed AppImages with metadata"""
 
 import json
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import List, Optional
 
-from .paths import get_config_dir, get_installed_registry_file
+from badgerdrop.paths import get_config_dir, get_installed_registry_file
 
 
 @dataclass
@@ -17,10 +16,10 @@ class InstalledApp:
     source_path: str  # Original file location
     install_path: str  # Where it was copied to
     icon_name: str
-    categories: List[str]
+    categories: list[str]
     install_date: str
-    comment: Optional[str] = None
-    desktop_file: Optional[str] = None
+    comment: str | None = None
+    desktop_file: str | None = None
 
 
 class InstalledAppsManager:
@@ -29,7 +28,7 @@ class InstalledAppsManager:
     def __init__(self):
         self.config_dir = get_config_dir()
         self.registry_file = get_installed_registry_file()
-        self.apps: List[InstalledApp] = []
+        self.apps: list[InstalledApp] = []
         self._load_registry()
 
     def _load_registry(self):
@@ -58,11 +57,11 @@ class InstalledAppsManager:
         self.apps = [a for a in self.apps if a.install_path != install_path]
         self._save_registry()
 
-    def get_all(self) -> List[InstalledApp]:
+    def get_all(self) -> list[InstalledApp]:
         """Get all installed apps, sorted by install date (newest first)"""
         return sorted(self.apps, key=lambda a: a.install_date, reverse=True)
 
-    def get_by_name(self, name: str) -> Optional[InstalledApp]:
+    def get_by_name(self, name: str) -> InstalledApp | None:
         """Find an app by name"""
         for app in self.apps:
             if app.name.lower() == name.lower():
@@ -73,7 +72,7 @@ class InstalledAppsManager:
         """Check if an app is already installed"""
         return any(app.name.lower() == name.lower() for app in self.apps)
 
-    def get_by_filename(self, filename: str) -> Optional[InstalledApp]:
+    def get_by_filename(self, filename: str) -> InstalledApp | None:
         """Find an app by its filename (basename of install_path)"""
         for app in self.apps:
             if Path(app.install_path).name == filename:

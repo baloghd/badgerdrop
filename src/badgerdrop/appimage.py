@@ -1,15 +1,15 @@
 """AppImage parsing and metadata extraction"""
 
-import subprocess
-import tempfile
-import shutil
-import os
-from pathlib import Path
-from dataclasses import dataclass
-from typing import Optional
 import configparser
+import contextlib
 import gettext
 import logging
+import os
+import shutil
+import subprocess
+import tempfile
+from dataclasses import dataclass
+from pathlib import Path
 
 _ = gettext.gettext
 
@@ -23,13 +23,13 @@ class AppImageInfo:
     name: str
     exec_cmd: str
     icon_name: str
-    icon_path: Optional[Path]
+    icon_path: Path | None
     categories: list[str]
     comment: str
     desktop_file_content: str
-    temp_extract_dir: Optional[Path]
-    mount_proc: Optional[subprocess.Popen] = None
-    version: Optional[str] = None
+    temp_extract_dir: Path | None
+    mount_proc: subprocess.Popen | None = None
+    version: str | None = None
 
     def cleanup(self):
         """Remove temporary extraction directory and unmount"""
@@ -39,10 +39,8 @@ class AppImageInfo:
                 self.mount_proc.terminate()
                 self.mount_proc.wait(timeout=5)
             except Exception:
-                try:
+                with contextlib.suppress(Exception):
                     self.mount_proc.kill()
-                except Exception:
-                    pass
 
         if self.temp_extract_dir and self.temp_extract_dir.exists():
             shutil.rmtree(self.temp_extract_dir, ignore_errors=True)
@@ -54,9 +52,9 @@ class AppImageParser:
     def __init__(self, appimage_path: str, debug: bool = False):
         self.appimage_path = Path(appimage_path)
         self.debug = debug
-        self._temp_dir: Optional[Path] = None
-        self._mount_proc: Optional[subprocess.Popen] = None
-        self._mount_point: Optional[Path] = None
+        self._temp_dir: Path | None = None
+        self._mount_proc: subprocess.Popen | None = None
+        self._mount_point: Path | None = None
 
         if not self.appimage_path.exists():
             raise FileNotFoundError(f"AppImage not found: {appimage_path}")
@@ -163,7 +161,7 @@ class AppImageParser:
         parser = configparser.ConfigParser(interpolation=None)
         parser.optionxform = str  # Preserve case
 
-        with open(desktop_file, "r", encoding="utf-8", errors="ignore") as f:
+        with open(desktop_file, encoding="utf-8", errors="ignore") as f:
             content = f.read()
             parser.read_string(content)
 
@@ -183,7 +181,7 @@ class AppImageParser:
             "raw": content,
         }
 
-    def _find_icon(self, icon_name: str) -> Optional[Path]:
+    def _find_icon(self, icon_name: str) -> Path | None:
         """Find the icon file in the mounted AppImage"""
         squashfs_root = self._squashfs_root
 

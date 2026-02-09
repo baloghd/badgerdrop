@@ -1,20 +1,22 @@
 """AppImage installer - drag and drop installation for Linux"""
 
-import sys
-import gi
 import logging
+import sys
+
+import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gio
-from pathlib import Path
 import gettext
+from pathlib import Path
+
+from gi.repository import Adw, Gio
 
 _ = gettext.gettext
 
-from .appimage import AppImageParser
-from .ui.window import MainWindow
+from badgerdrop.appimage import AppImageParser
+from badgerdrop.ui.window import MainWindow
 
 # Setup logging
 logger = logging.getLogger("badgerdrop")
@@ -97,7 +99,7 @@ def debug_main():
 
 def list_main():
     """List all installed AppImages"""
-    from .installed import InstalledAppsManager
+    from badgerdrop.installed import InstalledAppsManager
 
     manager = InstalledAppsManager()
     apps = manager.get_all()
@@ -127,7 +129,7 @@ def list_main():
 
 def sound_toggle_main():
     """Toggle sound notifications on/off"""
-    from .settings import SettingsManager
+    from badgerdrop.settings import SettingsManager
 
     settings = SettingsManager()
 

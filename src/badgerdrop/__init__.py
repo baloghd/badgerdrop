@@ -1,10 +1,10 @@
-from .main import main, debug_main, list_main, sound_toggle_main
-from .appimage import AppImageParser, AppImageInfo
-from .installer import AppImageInstaller
-from .installed import InstalledAppsManager
-from .settings import SettingsManager, AppSettings
-from .sound import SoundManager, MockSoundManager
-from .notifications import NotificationManager
+from badgerdrop.appimage import AppImageInfo, AppImageParser
+from badgerdrop.installed import InstalledAppsManager
+from badgerdrop.installer import AppImageInstaller
+from badgerdrop.main import debug_main, list_main, main, sound_toggle_main
+from badgerdrop.notifications import NotificationManager
+from badgerdrop.settings import AppSettings, SettingsManager
+from badgerdrop.sound import MockSoundManager, SoundManager
 
 __version__ = "0.1.0"
 __all__ = [

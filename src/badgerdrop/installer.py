@@ -1,13 +1,13 @@
 """Installation logic for AppImages"""
 
 import logging
+from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
-from typing import Callable, Optional
 
-from .appimage import AppImageInfo
-from .installed import InstalledApp, InstalledAppsManager
-from .utils import DesktopManager, FileCopier, IconInstaller
+from badgerdrop.appimage import AppImageInfo
+from badgerdrop.installed import InstalledApp, InstalledAppsManager
+from badgerdrop.utils import DesktopManager, FileCopier, IconInstaller
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class AppImageInstaller:
     """Install AppImages to the user's system"""
 
-    def __init__(self, install_dir: Optional[Path] = None):
+    def __init__(self, install_dir: Path | None = None):
         self.apps_dir = (
             install_dir.expanduser() if install_dir else Path.home() / "Applications"
         )
@@ -34,7 +34,7 @@ class AppImageInstaller:
         appimage_path: str,
         info: AppImageInfo,
         make_executable: bool = True,
-        progress_callback: Optional[Callable[[str, int, int], None]] = None,
+        progress_callback: Callable[[str, int, int], None] | None = None,
     ) -> InstalledApp:
         """Install an AppImage to ~/Applications with desktop integration
 

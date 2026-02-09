@@ -11,15 +11,15 @@ from pathlib import Path  # noqa: E402
 
 from gi.repository import Adw, Gdk, GdkPixbuf, Gio, GLib, Gtk  # noqa: E402
 
-from ..appimage import AppImageInfo  # noqa: E402
-from ..services import AppImageService, InstallationService  # noqa: E402
-from ..settings import SettingsManager  # noqa: E402
-from ..sound import SoundManager  # noqa: E402
-from ..utils import DesktopIntegration  # noqa: E402
-from .drag_content import AppImageDragContent  # noqa: E402
-from .helpers import load_css_styles  # noqa: E402
-from .progress_dialog import InstallProgressDialog  # noqa: E402
-from .settings_dialog import SettingsDialog  # noqa: E402
+from badgerdrop.appimage import AppImageInfo  # noqa: E402
+from badgerdrop.services import AppImageService, InstallationService  # noqa: E402
+from badgerdrop.settings import SettingsManager  # noqa: E402
+from badgerdrop.sound import SoundManager  # noqa: E402
+from badgerdrop.utils import DesktopIntegration  # noqa: E402
+from badgerdrop.ui.drag_content import AppImageDragContent  # noqa: E402
+from badgerdrop.ui.helpers import load_css_styles  # noqa: E402
+from badgerdrop.ui.progress_dialog import InstallProgressDialog  # noqa: E402
+from badgerdrop.ui.settings_dialog import SettingsDialog  # noqa: E402
 
 _ = gettext.gettext
 

@@ -1,17 +1,17 @@
 """Settings management for appimg"""
 
 import json
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from .paths import get_config_dir, get_settings_file
-from .constants import (
-    DEFAULT_PLAY_SOUND,
-    DEFAULT_SOUND_THEME,
+from badgerdrop.constants import (
     DEFAULT_AUTO_MAKE_EXECUTABLE,
-    DEFAULT_SHOW_NOTIFICATIONS,
     DEFAULT_INSTALL_DIR,
+    DEFAULT_PLAY_SOUND,
+    DEFAULT_SHOW_NOTIFICATIONS,
+    DEFAULT_SOUND_THEME,
 )
+from badgerdrop.paths import get_config_dir, get_settings_file
 
 
 @dataclass
@@ -37,7 +37,7 @@ class SettingsManager:
         """Load settings from file"""
         if self.settings_file.exists():
             try:
-                with open(self.settings_file, "r") as f:
+                with open(self.settings_file) as f:
                     data = json.load(f)
                 return AppSettings(**data)
             except (json.JSONDecodeError, TypeError):

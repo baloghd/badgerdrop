@@ -1,8 +1,8 @@
 """File copying utilities with progress tracking."""
 
 import logging
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ class FileCopier:
         self,
         src: Path,
         dst: Path,
-        progress_callback: Optional[Callable[[str, int, int], None]] = None,
+        progress_callback: Callable[[str, int, int], None] | None = None,
         chunk_size: int = 8192,
     ) -> None:
         """Copy a file with optional progress callback.

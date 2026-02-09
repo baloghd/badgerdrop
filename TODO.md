@@ -14,6 +14,7 @@
 - [x] BUG: window title should be "BadgerDrop" instead of "AppImage Installer"
 - [x] BUG: different icon from Gnome menu vs on dock
 - [ ] BUG: investigate 'app does not respond' error on some AppImages (e.g. Obsidian) - may be related to how we detect Electron apps 
+- [ ] IMPROVEMENT: UI window default size should be dynamic based on monitor resulution (currently hardcoded to 800x500)
 
 
 ## File/Package Support

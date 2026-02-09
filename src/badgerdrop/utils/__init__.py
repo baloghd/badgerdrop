@@ -3,12 +3,12 @@
 This module provides various utility functions and helpers for AppImage operations.
 """
 
-from .desktop import DesktopIntegration, DesktopIntegrationError
-from .desktop_manager import DesktopManager, DesktopManagerError
-from .file_copier import FileCopier, FileCopierError
-from .icon_installer import IconInstaller, IconInstallerError
-from .logging_config import get_logger, setup_logging
-from .validators import DirectoryValidationError, validate_directory
+from badgerdrop.utils.desktop import DesktopIntegration, DesktopIntegrationError
+from badgerdrop.utils.desktop_manager import DesktopManager, DesktopManagerError
+from badgerdrop.utils.file_copier import FileCopier, FileCopierError
+from badgerdrop.utils.icon_installer import IconInstaller, IconInstallerError
+from badgerdrop.utils.logging_config import get_logger, setup_logging
+from badgerdrop.utils.validators import DirectoryValidationError, validate_directory
 
 __all__ = [
     # Desktop integration

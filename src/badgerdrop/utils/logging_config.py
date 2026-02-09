@@ -4,12 +4,11 @@ import logging
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 
 def setup_logging(
     debug: bool = False,
-    log_file: Optional[Path] = None,
+    log_file: Path | None = None,
     log_to_stderr: bool = True,
 ) -> logging.Logger:
     """Setup logging configuration for BadgerDrop.

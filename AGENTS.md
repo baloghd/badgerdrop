@@ -53,7 +53,7 @@ uv run pytest -k test_name -v                # Run tests matching pattern
 2. Standard library imports (subprocess, os, pathlib, etc.)
 3. `gi.repository` imports (Gtk, Adw, GLib, etc.)
 4. Third-party imports (if any beyond GTK)
-5. Local package imports (relative preferred: `from .module import X`)
+5. Local package imports (absolute only: `from badgerdrop.module import X`)
 
 ### Naming Conventions
 - **Classes**: PascalCase (`AppImageParser`, `SettingsManager`)
@@ -64,9 +64,11 @@ uv run pytest -k test_name -v                # Run tests matching pattern
 - **File Names**: snake_case (`settings_dialog.py`)
 
 ### Type Hints
-- Use type hints for all function parameters and return types
-- Use `from __future__ import annotations` where needed
-- Import from `typing`: `Optional`, `Union`, `list`, `dict` (Python 3.9+)
+- **REQUIREMENT**: All function parameters and return types MUST have type hints
+- **REQUIREMENT**: Do NOT use `typing.Any` - find the proper type instead
+- **REQUIREMENT**: Do NOT use `TYPE_CHECKING` blocks - import types directly
+- Import from `typing`: `Optional`, `Union`, `list`, `dict`, `Callable` (Python 3.9+)
+- For GTK callback signatures, use `Callable[[Arg1, Arg2], ReturnType]`
 
 ### Docstrings
 - Module-level docstrings required
