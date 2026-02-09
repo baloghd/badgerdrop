@@ -3,20 +3,14 @@
 import logging
 import threading
 import traceback
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Optional
 
 from ..appimage import AppImageInfo
-from ..installer import AppImageInstaller
 from ..installed import InstalledApp
+from ..installer import AppImageInstaller
 
 logger = logging.getLogger(__name__)
-
-
-class InstallationServiceError(Exception):
-    """Exception raised for installation service errors."""
-
-    pass
 
 
 class InstallationService:
@@ -48,7 +42,7 @@ class InstallationService:
         progress_callback: Callable[[str, int, int], None],
         success_callback: Callable[[InstalledApp], None],
         error_callback: Callable[[Exception], None],
-        cleanup_callback: Optional[Callable[[], None]] = None,
+        cleanup_callback: Callable[[], None] | None = None,
     ) -> None:
         """Install an AppImage asynchronously in a background thread.
 

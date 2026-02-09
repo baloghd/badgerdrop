@@ -3,12 +3,7 @@
 from pathlib import Path
 
 from ..appimage import AppImageInfo, AppImageParser
-
-
-class AppImageServiceError(Exception):
-    """Exception raised for AppImage service errors."""
-
-    pass
+from .errors import AppImageServiceError
 
 
 class AppImageService:
