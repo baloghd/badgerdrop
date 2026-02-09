@@ -49,7 +49,11 @@
 - [ ] IMPROVEMENT: add basic unit test suite
 - [ ] IMPROVEMENT: add integration tests for installation process
 - [ ] IMPROVEMENT: add tests for edge cases (e.g. installing to non-writable directory, handling invalid AppImages)
-- [ ] IMPROVEMENT: add process for creating 'hello world' AppImage for testing purposes
+- [x] IMPROVEMENT: add process for creating 'hello world' AppImage for testing purposes
+  - Created tests/assets/hello-world-appimage/ with build script
+  - Uses zenity/yad for minimal GUI dialog
+  - Includes desktop file, icon, and AppRun script
+  - Makefile target: make test-assets (builds), make test-assets-run (builds + runs)
 
 ### Architecture & Refactoring - Phase 1: Foundation (Critical)
 - [x] REFACTOR: Create constants module - extract magic numbers (margins, icon sizes, timeouts, permissions, defaults) from window.py, installer.py, appimage.py, settings.py
@@ -75,7 +79,7 @@
 ### Bugs & Issues
 - [x] IMPROVEMENT: add logging for debugging purposes instead of print statements
 - [x] BUG: 'make executable' should only be applied to the installed file if the user does not choose to install
-- [ ] BUG: when uninstalling the dpkg, I get:
+- [x] BUG: when uninstalling the dpkg, I get:
   ```
   (badgerdrop) ➜ xcvb@t14  ~/badgerdrop git:(main) ✗ sudo apt remove badgerdrop
   Reading package lists... Done

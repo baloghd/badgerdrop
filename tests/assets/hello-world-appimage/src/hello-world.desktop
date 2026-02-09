@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Hello World Test
+Exec=hello-world.py
+Icon=hello-world
+Type=Application
+Categories=Utility;X-Testing;
+Comment=Minimal GTK4 test application for BadgerDrop
+Terminal=false
+StartupNotify=true

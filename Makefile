@@ -19,6 +19,7 @@ help:
 	@echo "  make list           - List all installed AppImages"
 	@echo "  make install-desktop   - Register badgerdrop as default AppImage handler"
 	@echo "  make uninstall-desktop - Restore previous default handler"
+	@echo "  make test-assets    - Build hello-world test AppImage"
 	@echo "  make test-status    - Check Cursor test app status"
 	@echo "  make test-install   - Install Cursor AppImage for testing"
 	@echo "  make test-run       - Run badgerdrop with Cursor for testing"
@@ -179,6 +180,29 @@ test-uninstall:
 		exit 1; \
 	fi
 	uv run badgerdrop '$(TEST_APPIMAGE)'
+
+# Build hello-world test AppImage
+TEST_ASSETS_DIR = tests/assets/hello-world-appimage
+TEST_APPIMAGE_PATH = tests/assets/hello-world-1.0.0-x86_64.AppImage
+
+test-assets:
+	@echo "Building hello-world test AppImage..."
+	@if [ ! -d "$(TEST_ASSETS_DIR)" ]; then \
+		echo "Error: $(TEST_ASSETS_DIR) not found"; \
+		exit 1; \
+	fi
+	@cd $(TEST_ASSETS_DIR) && ./build.sh
+	@echo "✓ Test AppImage built: $(TEST_APPIMAGE_PATH)"
+	@echo "Use: make test-assets-run"
+
+test-assets-run: test-assets
+	@echo "Running badgerdrop with hello-world test AppImage..."
+	@if [ ! -f "$(TEST_APPIMAGE_PATH)" ]; then \
+		echo "Error: $(TEST_APPIMAGE_PATH) not found"; \
+		echo "Run: make test-assets first"; \
+		exit 1; \
+	fi
+	@uv run badgerdrop '$(TEST_APPIMAGE_PATH)'
 
 # Debian package building
 DPKG_DIR = debian
