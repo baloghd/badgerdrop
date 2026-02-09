@@ -38,12 +38,17 @@ class AppImgApp(Adw.Application):
         self._activation_count += 1
         if not self.window:
             self.window = MainWindow(application=self)
+            self.window.connect("destroy", self._on_window_destroy)
         self.window.present()
 
     def _on_startup(self, app):
-        self.hold()
         if self._activation_count == 0:
             self.activate()
+
+    def _on_window_destroy(self, window):
+        """Handle window close and exit application."""
+        self.window = None
+        self.quit()
 
     def _on_open(self, app, files, n_files, hint):
         self.activate()

@@ -1,37 +1,29 @@
-"""Pydantic models for BadgerDrop core domain"""
+"""Dataclass models for BadgerDrop core domain"""
 
+from dataclasses import dataclass, field
 from pathlib import Path
 from subprocess import Popen
 
-from pydantic import BaseModel, Field, field_validator
 
-
-class AppImageInfo(BaseModel):
+@dataclass
+class AppImageInfo:
     """Extracted information from an AppImage"""
 
     name: str
     exec_cmd: str
     icon_name: str
     icon_path: Path | None = None
-    categories: list[str] = Field(default_factory=list)
+    categories: list[str] = field(default_factory=list)
     comment: str = ""
     desktop_file_content: str = ""
     temp_extract_dir: Path | None = None
     mount_proc: Popen | None = None
     version: str | None = None
 
-    @field_validator("categories", mode="before")
-    @classmethod
-    def ensure_categories_list(cls, v):
-        """Ensure categories is always a list"""
-        if v is None:
-            return []
-        return v
-
-    class Config:
-        """Pydantic config - allow arbitrary types like Path and Popen"""
-
-        arbitrary_types_allowed = True
+    def __post_init__(self) -> None:
+        """Post-initialization to ensure categories is a list"""
+        if self.categories is None:
+            self.categories = []
 
     def cleanup(self) -> None:
         """Clean up temporary files and unmount AppImage"""
@@ -52,7 +44,8 @@ class AppImageInfo(BaseModel):
             self.temp_extract_dir = None
 
 
-class InstalledApp(BaseModel):
+@dataclass
+class InstalledApp:
     """Metadata about an installed AppImage"""
 
     name: str
@@ -60,13 +53,19 @@ class InstalledApp(BaseModel):
     source_path: str  # Original file location
     install_path: str  # Where it was copied to
     icon_name: str
-    categories: list[str] = Field(default_factory=list)
     install_date: str
+    categories: list[str] = field(default_factory=list)
     comment: str | None = None
     desktop_file: str | None = None
 
+    def __post_init__(self) -> None:
+        """Post-initialization to ensure categories is a list"""
+        if self.categories is None:
+            self.categories = []
 
-class AppSettings(BaseModel):
+
+@dataclass
+class AppSettings:
     """Application settings"""
 
     play_sound_on_install: bool = True
@@ -75,10 +74,7 @@ class AppSettings(BaseModel):
     show_notifications: bool = True
     install_directory: str = "~/Applications"
 
-    @field_validator("install_directory")
-    @classmethod
-    def validate_install_directory(cls, v: str) -> str:
-        """Ensure install directory is not empty"""
-        if not v or not v.strip():
-            return "~/Applications"
-        return v
+    def __post_init__(self) -> None:
+        """Post-initialization to validate install directory"""
+        if not self.install_directory or not self.install_directory.strip():
+            self.install_directory = "~/Applications"

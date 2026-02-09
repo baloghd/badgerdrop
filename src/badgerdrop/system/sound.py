@@ -7,7 +7,6 @@ import subprocess
 import gi
 
 gi.require_version("Gdk", "4.0")
-from gi.repository import Gdk
 
 logger = logging.getLogger(__name__)
 

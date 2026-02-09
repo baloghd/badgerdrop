@@ -8,9 +8,14 @@ from pathlib import Path
 
 from badgerdrop.core.models import AppImageInfo, InstalledApp
 from badgerdrop.install.installer import AppImageInstaller
-from badgerdrop.services.errors import InstallationServiceError
 
 logger = logging.getLogger(__name__)
+
+
+class InstallationServiceError(Exception):
+    """Exception raised for errors in the installation service."""
+
+    pass
 
 
 class InstallationService:

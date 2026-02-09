@@ -93,7 +93,9 @@ class AppImageParser:
             config = ConfigParser(interpolation=None)
             config.optionxform = str
 
-        desktop_entry = config["Desktop Entry"] if "Desktop Entry" in config else {}
+        desktop_entry = (
+            dict(config["Desktop Entry"]) if "Desktop Entry" in config else {}
+        )
 
         name = self._get_desktop_value(desktop_entry, "Name", "Unknown App")
         exec_cmd = self._get_desktop_value(desktop_entry, "Exec", "")
