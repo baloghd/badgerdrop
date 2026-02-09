@@ -13,7 +13,7 @@
 - [x] BUG: we make the file executable even if we don't install it -> only make executable if user chooses to install
 - [x] BUG: window title should be "BadgerDrop" instead of "AppImage Installer"
 - [x] BUG: different icon from Gnome menu vs on dock
-- [ ] BUG: investigate 'app does not respond' error on some AppImages (e.g. Obsidian) - may be related to how we detect Electron apps 
+- [x] BUG: investigate 'app does not respond' error on some AppImages (e.g. Obsidian) - may be related to how we detect Electron apps 
 - [ ] IMPROVEMENT: UI window default size should be dynamic based on monitor resulution (currently hardcoded to 800x500)
 
 
@@ -69,8 +69,8 @@
 - [x] REFACTOR: Clean settings_dialog.py - remove commented-out code at lines 46-49
 
 ### Architecture & Refactoring - Phase 4: CLI & Dead Code (Lower Priority)
-- [ ] REFACTOR: Extract CLI commands to cli/commands.py - move CLI entry points from main.py
-- [ ] REFACTOR: Remove or implement _is_electron_app() dead code in installer.py:176-193
+- [x] REFACTOR: Extract CLI commands to cli/commands.py - move CLI entry points from main.py
+- [x] REFACTOR: Remove or implement _is_electron_app() dead code in installer.py:176-193
 
 ### Bugs & Issues
 - [x] IMPROVEMENT: add logging for debugging purposes instead of print statements
