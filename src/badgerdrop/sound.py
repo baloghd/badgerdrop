@@ -4,8 +4,9 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 
-import subprocess
+import contextlib
 import shutil
+import subprocess
 
 
 class SoundManager:
@@ -31,28 +32,24 @@ class SoundManager:
         if not self.enabled or not self._canberra_available:
             return
 
-        try:
-            # Try to play a success sound
-            # 'message' is a standard freedesktop sound that works on most systems
+        with contextlib.suppress(subprocess.TimeoutExpired, Exception):
             subprocess.run(
-                ["canberra-gtk-play", "-i", "message"], capture_output=True, timeout=2
+                ["canberra-gtk-play", "-i", "message"],
+                capture_output=True,
+                timeout=2,
             )
-        except (subprocess.TimeoutExpired, Exception):
-            pass  # Silently fail if sound can't play
 
     def play_error(self):
         """Play error sound"""
         if not self.enabled or not self._canberra_available:
             return
 
-        try:
+        with contextlib.suppress(subprocess.TimeoutExpired, Exception):
             subprocess.run(
                 ["canberra-gtk-play", "-i", "dialog-error"],
                 capture_output=True,
                 timeout=2,
             )
-        except (subprocess.TimeoutExpired, Exception):
-            pass
 
 
 class MockSoundManager:
