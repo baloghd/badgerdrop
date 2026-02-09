@@ -74,7 +74,7 @@
 
 ### Bugs & Issues
 - [x] IMPROVEMENT: add logging for debugging purposes instead of print statements
-- [ ] BUG: 'make executable' should only be applied to the installed file if the user does not choose to install
+- [x] BUG: 'make executable' should only be applied to the installed file if the user does not choose to install
 - [ ] BUG: when uninstalling the dpkg, I get:
   ```
   (badgerdrop) ➜ xcvb@t14  ~/badgerdrop git:(main) ✗ sudo apt remove badgerdrop

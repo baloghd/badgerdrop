@@ -2,6 +2,7 @@
 
 import atexit
 import logging
+import os
 import shutil
 import subprocess
 import tempfile
@@ -48,6 +49,17 @@ class AppImageParser:
 
         self._temp_extract_dir = Path(tempfile.mkdtemp(prefix="badgerdrop_"))
 
+        # Check if file is executable, temporarily make it so for parsing
+        original_mode = None
+        needs_chmod = not os.access(self.appimage_path, os.X_OK)
+
+        if needs_chmod:
+            logger.debug(
+                "AppImage not executable, temporarily adding execute permission"
+            )
+            original_mode = self.appimage_path.stat().st_mode
+            self.appimage_path.chmod(original_mode | 0o111)
+
         try:
             proc = subprocess.Popen(
                 [str(self.appimage_path), "--appimage-mount"],
@@ -71,6 +83,11 @@ class AppImageParser:
         except Exception:
             self.cleanup()
             raise
+        finally:
+            # Restore original permissions if we changed them
+            if needs_chmod and original_mode is not None:
+                logger.debug("Restoring original permissions")
+                self.appimage_path.chmod(original_mode)
 
     def _find_desktop_file(self, mount_point: Path) -> Path | None:
         """Find the main .desktop file in the mounted AppImage"""
