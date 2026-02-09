@@ -5,36 +5,25 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Gtk, Adw, Gdk, GdkPixbuf, GLib, Gio
+import gettext  # noqa: E402
+import logging  # noqa: E402
+from pathlib import Path  # noqa: E402
 
-import gettext
-import logging
-from pathlib import Path
+from gi.repository import Adw, Gdk, GdkPixbuf, Gio, GLib, Gtk  # noqa: E402
 
-from .drag_content import AppImageDragContent
-from ..appimage import AppImageInfo
-from ..services import AppImageService, InstallationService
-from ..settings import SettingsManager
-from ..sound import SoundManager
-from ..utils import DesktopIntegration
-from .settings_dialog import SettingsDialog
-from .progress_dialog import InstallProgressDialog
+from ..appimage import AppImageInfo  # noqa: E402
+from ..services import AppImageService, InstallationService  # noqa: E402
+from ..settings import SettingsManager  # noqa: E402
+from ..sound import SoundManager  # noqa: E402
+from ..utils import DesktopIntegration  # noqa: E402
+from .drag_content import AppImageDragContent  # noqa: E402
+from .helpers import load_css_styles  # noqa: E402
+from .progress_dialog import InstallProgressDialog  # noqa: E402
+from .settings_dialog import SettingsDialog  # noqa: E402
 
 _ = gettext.gettext
 
 logger = logging.getLogger(__name__)
-
-
-def load_css_styles():
-    """Load CSS styles from external stylesheet file"""
-    css_file = Path(__file__).parent / "styles.css"
-
-    if css_file.exists():
-        try:
-            return css_file.read_text()
-        except Exception:
-            return ""
-    return ""
 
 
 # Load CSS from external file
@@ -44,7 +33,7 @@ CSS_STYLES = load_css_styles()
 class MainWindow(Adw.ApplicationWindow):
     """Main window with drag and drop installation"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: object) -> None:
         super().__init__(**kwargs)
 
         self.set_default_size(800, 500)
@@ -53,8 +42,10 @@ class MainWindow(Adw.ApplicationWindow):
 
         self.current_appimage: Path | None = None
         self.current_info: AppImageInfo | None = None
-        self.installed_app = None  # Track installed app for reveal button
-        self.debug_mode = True  # Always enable debug for now
+        self.installed_app: object | None = (
+            None  # Track installed app for reveal button
+        )
+        self.debug_mode: bool = True  # Always enable debug for now
 
         # Initialize settings and sound
         self.settings = SettingsManager()
@@ -63,7 +54,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._setup_css()
         self._build_ui()
 
-    def _setup_css(self):
+    def _setup_css(self) -> None:
         """Load custom CSS styles"""
         provider = Gtk.CssProvider()
         css_bytes = CSS_STYLES.encode()
@@ -75,7 +66,7 @@ class MainWindow(Adw.ApplicationWindow):
                 display, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
             )
 
-    def _build_ui(self):
+    def _build_ui(self) -> None:
         """Build the main UI"""
         # Main container
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -127,7 +118,7 @@ class MainWindow(Adw.ApplicationWindow):
         # Build the interface
         self._build_drop_interface()
 
-    def _build_drop_interface(self):
+    def _build_drop_interface(self) -> None:
         """Build the drag interface"""
         # Horizontal layout: App Icon -> Arrow -> Applications Folder
         hbox = Gtk.Box(
@@ -218,13 +209,13 @@ class MainWindow(Adw.ApplicationWindow):
         footer.append(make_exec_label)
         footer.append(self.make_exec_switch)
 
-    def _on_make_exec_toggled(self, switch, state):
+    def _on_make_exec_toggled(self, switch: Gtk.Switch, state: bool) -> bool:
         """Handle make executable toggle change"""
         self.settings.auto_make_executable = state
         self._debug_print(f"Make executable: {'ON' if state else 'OFF'}")
         return False
 
-    def _setup_file_drop(self):
+    def _setup_file_drop(self) -> None:
         """Setup drag and drop for loading AppImage files"""
         # Create drop target for files (external drops)
         drop_target = Gtk.DropTarget.new(Gio.File, Gdk.DragAction.COPY)
@@ -233,7 +224,7 @@ class MainWindow(Adw.ApplicationWindow):
         drop_target.connect("drop", self._on_file_drop)
         self.drop_area.add_controller(drop_target)
 
-    def _setup_internal_drag(self):
+    def _setup_internal_drag(self) -> None:
         """Setup drag source on app icon and drop target on Applications folder"""
         if not self.current_appimage:
             return
@@ -257,7 +248,9 @@ class MainWindow(Adw.ApplicationWindow):
 
         self._debug_print("Drag setup complete - drag app icon to Applications folder")
 
-    def _on_drag_prepare(self, source, x, y):
+    def _on_drag_prepare(
+        self, source: Gtk.DragSource, x: float, y: float
+    ) -> Gdk.ContentProvider | None:
         """Prepare drag content when user starts dragging"""
         if not self.current_appimage:
             return None
@@ -267,16 +260,20 @@ class MainWindow(Adw.ApplicationWindow):
         content = Gdk.ContentProvider.new_for_value(drag_content)
         return content
 
-    def _on_file_drag_enter(self, target, x, y):
+    def _on_file_drag_enter(
+        self, target: Gtk.DropTarget, x: float, y: float
+    ) -> Gdk.DragAction:
         """Handle drag enter for file drops"""
         self.drop_area.add_css_class("drag-over")
         return Gdk.DragAction.COPY
 
-    def _on_file_drag_leave(self, target):
+    def _on_file_drag_leave(self, target: Gtk.DropTarget) -> None:
         """Handle drag leave for file drops"""
         self.drop_area.remove_css_class("drag-over")
 
-    def _on_file_drop(self, target, file, x, y):
+    def _on_file_drop(
+        self, target: Gtk.DropTarget, file: Gio.File, x: float, y: float
+    ) -> bool:
         """Handle file drop (load AppImage)"""
         self.drop_area.remove_css_class("drag-over")
 
@@ -286,7 +283,7 @@ class MainWindow(Adw.ApplicationWindow):
 
         return True
 
-    def _on_app_drag_begin(self, source, drag):
+    def _on_app_drag_begin(self, source: Gtk.DragSource, drag: Gdk.Drag) -> None:
         """Handle start of dragging the app icon"""
         self.app_icon_box.add_css_class("dragging")
         self.target_box.add_css_class("highlight")
@@ -298,23 +295,33 @@ class MainWindow(Adw.ApplicationWindow):
 
         self._debug_print("Started dragging app icon")
 
-    def _on_app_drag_end(self, source, drag, delete_data):
+    def _on_app_drag_end(
+        self, source: Gtk.DragSource, drag: Gdk.Drag, delete_data: bool
+    ) -> None:
         """Handle end of dragging the app icon"""
         self.app_icon_box.remove_css_class("dragging")
         self.target_box.remove_css_class("highlight")
         self.target_box.remove_css_class("drop-ready")
 
-    def _on_target_drag_enter(self, target, x, y):
+    def _on_target_drag_enter(
+        self, target: Gtk.DropTarget, x: float, y: float
+    ) -> Gdk.DragAction:
         """Handle drag enter on target (app being dragged to it)"""
         self.target_box.add_css_class("drop-ready")
         self._debug_print("Dragging over Applications folder...")
         return Gdk.DragAction.COPY
 
-    def _on_target_drag_leave(self, target):
+    def _on_target_drag_leave(self, target: Gtk.DropTarget) -> None:
         """Handle drag leave from target"""
         self.target_box.remove_css_class("drop-ready")
 
-    def _on_target_drop(self, target, drag_content, x, y):
+    def _on_target_drop(
+        self,
+        target: Gtk.DropTarget,
+        drag_content: AppImageDragContent,
+        x: float,
+        y: float,
+    ) -> bool:
         """Handle drop on target (install!)"""
         self._debug_print("=== DROP START ===")
         self.target_box.remove_css_class("drop-ready")
@@ -397,7 +404,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._debug_print(f"Loaded: {info.name}")
         self._debug_print("Now drag the app icon to the Applications folder")
 
-    def _install_appimage(self):
+    def _install_appimage(self) -> None:
         """Install the current AppImage with progress dialog"""
         if not self.current_appimage or not self.current_info:
             return
@@ -463,7 +470,7 @@ class MainWindow(Adw.ApplicationWindow):
             cleanup_callback=lambda: GLib.idle_add(cleanup_callback),
         )
 
-    def _add_reveal_button(self):
+    def _add_reveal_button(self) -> None:
         """Add a button to reveal the installed app in file manager"""
         # Check if button already exists
         for child in self.drop_area.observe_children():
@@ -480,7 +487,7 @@ class MainWindow(Adw.ApplicationWindow):
         self.drop_area.append(reveal_btn)
         reveal_btn.grab_focus()
 
-    def _on_reveal_clicked(self, button):
+    def _on_reveal_clicked(self, button: Gtk.Button) -> None:
         """Open file manager to show the installed AppImage"""
         if not self.installed_app:
             return
@@ -493,7 +500,7 @@ class MainWindow(Adw.ApplicationWindow):
             except Exception as e:
                 logger.error("Failed to open folder: %s", e)
 
-    def _reset_ui(self):
+    def _reset_ui(self) -> bool:
         """Reset the UI to initial state"""
         self.current_appimage = None
         self.current_info = None
@@ -541,7 +548,7 @@ class MainWindow(Adw.ApplicationWindow):
         self.toast_overlay.add_toast(toast)
         self._debug_print(f"ERROR: {message}")
 
-    def _on_settings_clicked(self, button):
+    def _on_settings_clicked(self, button: Gtk.Button) -> None:
         """Open settings dialog"""
         dialog = SettingsDialog(parent=self)
         dialog.present()

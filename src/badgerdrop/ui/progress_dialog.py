@@ -4,8 +4,9 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 
-from gi.repository import Gtk, GLib
 from gettext import gettext as _
+
+from gi.repository import GLib, Gtk
 
 
 class InstallProgressDialog(Gtk.Dialog):

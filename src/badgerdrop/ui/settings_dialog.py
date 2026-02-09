@@ -1,16 +1,21 @@
 """Settings dialog for appimg"""
 
-import logging
-from pathlib import Path
-
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Gtk, Gio
 
-from ..settings import SettingsManager
-from ..utils.validators import DirectoryValidationError, validate_directory
+import logging  # noqa: E402
+from collections.abc import Callable  # noqa: E402
+from pathlib import Path  # noqa: E402
+
+from gi.repository import Gio, Gtk, Pango  # noqa: E402
+
+from ..settings import SettingsManager  # noqa: E402
+from ..utils.validators import (  # noqa: E402
+    DirectoryValidationError,
+    validate_directory,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +23,7 @@ logger = logging.getLogger(__name__)
 class SettingsDialog(Gtk.Dialog):
     """Settings dialog for configuring appimg"""
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: Gtk.Window | None = None) -> None:
         super().__init__(
             title="Settings",
             transient_for=parent,
@@ -94,7 +99,14 @@ class SettingsDialog(Gtk.Dialog):
 
         self.connect("response", self._on_response)
 
-    def _create_switch_row(self, parent, title, subtitle, active, callback):
+    def _create_switch_row(
+        self,
+        parent: Gtk.Box,
+        title: str,
+        subtitle: str,
+        active: bool,
+        callback: Callable[[Gtk.Switch, bool], bool],
+    ) -> None:
         """Create a row with a switch"""
         row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
         row.set_margin_top(8)
@@ -127,17 +139,17 @@ class SettingsDialog(Gtk.Dialog):
 
         parent.append(row)
 
-    def _on_sound_toggled(self, switch, state):
+    def _on_sound_toggled(self, switch: Gtk.Switch, state: bool) -> bool:
         """Handle sound toggle"""
         self.settings.play_sound = state
         return False
 
-    def _on_notifications_toggled(self, switch, state):
+    def _on_notifications_toggled(self, switch: Gtk.Switch, state: bool) -> bool:
         """Handle notifications toggle"""
         self.settings.show_notifications = state
         return False
 
-    def _create_directory_row(self, parent):
+    def _create_directory_row(self, parent: Gtk.Box) -> None:
         """Create a row for selecting install directory"""
         row = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
         row.set_margin_top(8)
@@ -157,7 +169,9 @@ class SettingsDialog(Gtk.Dialog):
         self.path_label = Gtk.Label(label=self.settings.install_directory)
         self.path_label.add_css_class("caption")
         self.path_label.set_max_width_chars(40)
-        self.path_label.set_ellipsize(3)  # Pango.EllipsizeMode.END
+        self.path_label.set_ellipsize(
+            Pango.EllipsizeMode.END
+        )  # Pango.EllipsizeMode.END
         label_box.append(self.path_label)
 
         # Subtitle
@@ -178,7 +192,7 @@ class SettingsDialog(Gtk.Dialog):
 
         parent.append(row)
 
-    def _on_browse_clicked(self, button):
+    def _on_browse_clicked(self, button: Gtk.Button) -> None:
         """Handle browse button click"""
         dialog = Gtk.FileDialog()
         dialog.set_title("Select Install Directory")
@@ -193,12 +207,17 @@ class SettingsDialog(Gtk.Dialog):
 
         dialog.select_folder(self, None, self._on_folder_selected, None)
 
-    def _on_folder_selected(self, dialog, result, user_data):
+    def _on_folder_selected(
+        self, dialog: Gtk.FileDialog, result: Gio.AsyncResult, user_data: object
+    ) -> None:
         """Handle folder selection result"""
         try:
             file = dialog.select_folder_finish(result)
             if file:
                 path = file.get_path()
+                if path is None:
+                    self._show_error("Could not get path from selected folder")
+                    return
                 try:
                     validate_directory(path)
                     self.settings.install_directory = path
@@ -208,7 +227,7 @@ class SettingsDialog(Gtk.Dialog):
         except Exception as e:
             logger.error("Error selecting folder: %s", e)
 
-    def _show_error(self, message: str):
+    def _show_error(self, message: str) -> None:
         """Show an error dialog"""
         error_dialog = Gtk.MessageDialog(
             transient_for=self,
@@ -216,11 +235,11 @@ class SettingsDialog(Gtk.Dialog):
             message_type=Gtk.MessageType.ERROR,
             buttons=Gtk.ButtonsType.OK,
             text="Invalid Directory",
+            secondary_text=message,
         )
-        error_dialog.format_secondary_text(message)
         error_dialog.connect("response", lambda d, r: d.destroy())
         error_dialog.show()
 
-    def _on_response(self, dialog, response_id):
+    def _on_response(self, dialog: Gtk.Dialog, response_id: int) -> None:
         """Handle dialog response"""
         self.destroy()
