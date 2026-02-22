@@ -1,0 +1,152 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_release:
+        description: 'Type "yes" to confirm release'
+        required: true
+        type: string
+
+jobs:
+  check-and-release:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm_release == 'yes'
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Need full history for changelog
+    
+    - name: Extract version from pyproject.toml
+      id: get_version
+      run: |
+        VERSION=$(grep -E '^version\s*=' pyproject.toml | head -1 | cut -d'"' -f2)
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Version: $VERSION"
+    
+    - name: Check if tag already exists
+      id: check_tag
+      run: |
+        VERSION="${{ steps.get_version.outputs.version }}"
+        if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+          echo "::error::Tag v$VERSION already exists! Please bump version in pyproject.toml"
+          exit 1
+        fi
+        echo "Tag v$VERSION does not exist - proceeding with release"
+    
+    - name: Check if release already exists
+      id: check_release
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        VERSION="${{ steps.get_version.outputs.version }}"
+        if gh release view "v$VERSION" 2>/dev/null; then
+          echo "::error::Release v$VERSION already exists!"
+          exit 1
+        fi
+        echo "Release v$VERSION does not exist - proceeding"
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        version: "latest"
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libgirepository1.0-dev \
+          libgirepository-2.0-dev \
+          libcairo2-dev \
+          gobject-introspection \
+          gir1.2-gtk-4.0 \
+          gir1.2-adw-1 \
+          debhelper \
+          devscripts \
+          dh-python \
+          rubygems
+    
+    - name: Install fpm for RPM building
+      run: sudo gem install fpm
+    
+    - name: Install Python dependencies
+      run: uv sync --all-extras
+    
+    - name: Run tests
+      run: uv run pytest tests/ -v --tb=short
+      env:
+        DISPLAY: ""
+    
+    - name: Build Debian package
+      run: make build-dpkg
+    
+    - name: Rename Debian package with version
+      run: |
+        VERSION="${{ steps.get_version.outputs.version }}"
+        cd debian
+        for pkg in *.deb; do
+          if [[ ! "$pkg" =~ _${VERSION}_ ]]; then
+            newname=$(echo "$pkg" | sed "s/_.*_/_${VERSION}_/")
+            mv "$pkg" "$newname"
+          fi
+        done
+    
+    - name: Build RPM package
+      run: make build-rpm
+    
+    - name: Rename RPM package with version
+      run: |
+        VERSION="${{ steps.get_version.outputs.version }}"
+        for pkg in *.rpm; do
+          if [[ ! "$pkg" =~ -${VERSION}- ]]; then
+            newname=$(echo "$pkg" | sed "s/-[0-9]\+\.[0-9]\+\.[0-9]\+/-${VERSION}/")
+            mv "$pkg" "$newname"
+          fi
+        done
+    
+    - name: Generate changelog
+      id: changelog
+      run: |
+        VERSION="${{ steps.get_version.outputs.version }}"
+        # Get commits since last tag (or all if no tags)
+        if git describe --tags --abbrev=0 2>/dev/null; then
+          LAST_TAG=$(git describe --tags --abbrev=0)
+          echo "Changes since $LAST_TAG:" > changelog.txt
+          git log "$LAST_TAG"..HEAD --pretty=format:"- %s" >> changelog.txt
+        else
+          echo "Initial release" > changelog.txt
+          git log --pretty=format:"- %s" >> changelog.txt
+        fi
+        echo "" >> changelog.txt
+        echo "Full Changelog: https://github.com/${{ github.repository }}/commits/v$VERSION" >> changelog.txt
+        cat changelog.txt
+    
+    - name: Create draft release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ steps.get_version.outputs.version }}
+        name: BadgerDrop ${{ steps.get_version.outputs.version }}
+        body_path: changelog.txt
+        draft: true
+        prerelease: false
+        files: |
+          debian/*.deb
+          *.rpm
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Release summary
+      run: |
+        echo "✅ Release v${{ steps.get_version.outputs.version }} created as DRAFT"
+        echo ""
+        echo "Next steps:"
+        echo "1. Go to https://github.com/${{ github.repository }}/releases"
+        echo "2. Review the draft release"
+        echo "3. Edit if needed"
+        echo "4. Click 'Publish release' when ready"

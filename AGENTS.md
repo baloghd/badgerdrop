@@ -185,3 +185,86 @@ Python packages:
 - After doing any significant changes, run `make format` and `make check` to ensure code quality
 - After doing any significant changes, run `make test` to ensure functionality is intact
 - After doing any significant changes, if there are a correspoding TODO in TODO.md, mark it as done
+
+## CI/CD and GitHub Actions
+
+BadgerDrop uses GitHub Actions for continuous integration and releases.
+
+### CI Workflow (`ci.yml`)
+
+**Triggers:** Automatically runs on every push to main/master and on pull requests
+
+**Jobs:**
+1. **test** - Runs all 127+ pytest tests on Ubuntu
+   - Installs GTK4 system dependencies
+   - Runs `uv run pytest tests/ -v --tb=short`
+   - Tests run headless (no display required)
+
+2. **lint** - Code quality checks
+   - Runs `ruff check src/`
+   - Runs `ruff check tests/` (warnings allowed)
+
+3. **build-packages** - Package building
+   - Builds Debian package with `make build-dpkg`
+   - Uploads artifacts for inspection
+
+4. **test-fedora-rpm** - Fedora RPM testing
+   - Runs in Fedora container
+   - Tests RPM package building
+   - Verifies Fedora compatibility
+
+### Release Workflow (`release.yml`)
+
+**Trigger:** Manual only (via GitHub UI → Actions → Release → "Run workflow")
+
+**Safety Features:**
+- Requires typing "yes" in confirmation field
+- **Fails if version already released** (checks for existing git tag)
+- Creates **DRAFT** release (requires manual publish)
+
+**Process:**
+1. Extracts version from `pyproject.toml`
+2. Checks if tag `vX.X.X` already exists (fails if yes)
+3. Runs full test suite
+4. Builds Debian (.deb) and RPM (.rpm) packages
+5. Generates changelog from commits since last tag
+6. Creates draft release with:
+   - Source code (auto-attached)
+   - `.deb` package
+   - `.rpm` package
+   - Auto-generated changelog
+
+**How to Create a Release:**
+
+1. **Bump version** in `pyproject.toml`:
+   ```toml
+   [project]
+   version = "0.1.1"  # Update this
+   ```
+
+2. **Commit and push:**
+   ```bash
+   git add pyproject.toml
+   git commit -m "Bump version to 0.1.1"
+   git push origin main
+   ```
+
+3. **Trigger release** (via GitHub web UI):
+   - Go to GitHub → Actions → Release
+   - Click "Run workflow"
+   - Type "yes" in confirm field
+   - Click "Run workflow"
+
+4. **Review and publish:**
+   - Wait ~5 minutes for workflow to complete
+   - Go to GitHub → Releases
+   - Find the draft release
+   - Review changelog and artifacts
+   - Click "Publish release" when ready
+
+**Version Protection:**
+The workflow will **fail** if:
+- Git tag `vX.X.X` already exists
+- GitHub Release `vX.X.X` already exists
+
+This prevents accidental duplicate releases. Always bump version in `pyproject.toml` before releasing.

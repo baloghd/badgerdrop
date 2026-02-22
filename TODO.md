@@ -42,7 +42,15 @@
 - [ ] IMPROVEMENT: add support for more package managers (e.g. apt, yum)
 - [ ] IMPROVEMENT: create a PPA for easy installation on Ubuntu-based systems
 - [ ] IMPROVEMENT: determine Python version compatibility matrix
-- [ ] IMPROVEMENT: add CI and CD for creating GitHub releases with pre-built packages attached
+- [x] IMPROVEMENT: add CI and CD for creating GitHub releases with pre-built packages attached
+  - Created `.github/workflows/ci.yml` - automated testing on push/PR
+  - Created `.github/workflows/release.yml` - manual release workflow
+  - Features:
+    - Runs 127+ tests on every push/PR
+    - Builds .deb (Ubuntu) and .rpm (Fedora) packages
+    - Version check: fails if pyproject.toml version already released
+    - Draft releases: creates draft for review before publishing
+    - Auto-generates changelog from commits since last tag
 - [ ] IMPROVEMENT: create nice, user friendly README with installation instructions, screenshots, and feature list
 
 ## Code Quality & Testing

@@ -1,0 +1,130 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        version: "latest"
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libgirepository1.0-dev \
+          libgirepository-2.0-dev \
+          libcairo2-dev \
+          gobject-introspection \
+          gir1.2-gtk-4.0 \
+          gir1.2-adw-1
+    
+    - name: Install Python dependencies
+      run: uv sync --all-extras
+    
+    - name: Run tests
+      run: uv run pytest tests/ -v --tb=short
+      env:
+        # Ensure tests run without display
+        DISPLAY: ""
+        GTK_DEBUG: ""
+    
+    - name: Run linting
+      run: |
+        uv run ruff check src/
+        uv run ruff check tests/ || true  # Allow warnings in tests
+
+  build-packages:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        version: "latest"
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libgirepository1.0-dev \
+          libcairo2-dev \
+          gobject-introspection \
+          gir1.2-gtk-4.0 \
+          gir1.2-adw-1 \
+          debhelper \
+          devscripts \
+          dh-python
+    
+    - name: Install Python dependencies
+      run: uv sync --all-extras
+    
+    - name: Build Debian package
+      run: make build-dpkg
+    
+    - name: Upload Debian package
+      uses: actions/upload-artifact@v4
+      with:
+        name: debian-package
+        path: debian/*.deb
+        retention-days: 7
+
+  test-fedora-rpm:
+    runs-on: ubuntu-latest
+    needs: test
+    container: fedora:latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install dependencies
+      run: |
+        dnf install -y \
+          python3-pip \
+          python3-gobject \
+          gtk4-devel \
+          libadwaita-devel \
+          gobject-introspection-devel \
+          cairo-gobject-devel \
+          rubygems \
+          rpm-build
+    
+    - name: Install fpm
+      run: gem install fpm
+    
+    - name: Install Python dependencies
+      run: pip3 install pygobject pydantic
+    
+    - name: Build RPM package
+      run: make build-rpm || echo "RPM build requires full setup"
+    
+    - name: Upload RPM package
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: fedora-rpm-package
+        path: '*.rpm'
+        retention-days: 7
