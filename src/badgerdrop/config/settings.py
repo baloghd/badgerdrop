@@ -28,6 +28,7 @@ class SettingsManager:
 
     def save(self) -> None:
         """Save settings to file"""
+        self.config_dir.mkdir(parents=True, exist_ok=True)
         with open(self.settings_file, "w") as f:
             json.dump(self._settings.model_dump(), f, indent=2)
 

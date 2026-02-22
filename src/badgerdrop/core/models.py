@@ -1,29 +1,26 @@
-"""Dataclass models for BadgerDrop core domain"""
+"""Pydantic models for BadgerDrop core domain"""
 
-from dataclasses import dataclass, field
 from pathlib import Path
 from subprocess import Popen
 
+from pydantic import BaseModel, ConfigDict, Field
 
-@dataclass
-class AppImageInfo:
+
+class AppImageInfo(BaseModel):
     """Extracted information from an AppImage"""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     name: str
     exec_cmd: str
     icon_name: str
     icon_path: Path | None = None
-    categories: list[str] = field(default_factory=list)
+    categories: list[str] = Field(default_factory=list)
     comment: str = ""
     desktop_file_content: str = ""
     temp_extract_dir: Path | None = None
     mount_proc: Popen | None = None
     version: str | None = None
-
-    def __post_init__(self) -> None:
-        """Post-initialization to ensure categories is a list"""
-        if self.categories is None:
-            self.categories = []
 
     def cleanup(self) -> None:
         """Clean up temporary files and unmount AppImage"""
@@ -43,9 +40,13 @@ class AppImageInfo:
             shutil.rmtree(self.temp_extract_dir, ignore_errors=True)
             self.temp_extract_dir = None
 
+        # Remove icon file if exists
+        if self.icon_path is not None and self.icon_path.exists():
+            self.icon_path.unlink()
+            self.icon_path = None
 
-@dataclass
-class InstalledApp:
+
+class InstalledApp(BaseModel):
     """Metadata about an installed AppImage"""
 
     name: str
@@ -54,18 +55,12 @@ class InstalledApp:
     install_path: str  # Where it was copied to
     icon_name: str
     install_date: str
-    categories: list[str] = field(default_factory=list)
+    categories: list[str] = Field(default_factory=list)
     comment: str | None = None
     desktop_file: str | None = None
 
-    def __post_init__(self) -> None:
-        """Post-initialization to ensure categories is a list"""
-        if self.categories is None:
-            self.categories = []
 
-
-@dataclass
-class AppSettings:
+class AppSettings(BaseModel):
     """Application settings"""
 
     play_sound_on_install: bool = True
@@ -74,7 +69,7 @@ class AppSettings:
     show_notifications: bool = True
     install_directory: str = "~/Applications"
 
-    def __post_init__(self) -> None:
+    def model_post_init(self, __context) -> None:
         """Post-initialization to validate install directory"""
         if not self.install_directory or not self.install_directory.strip():
             self.install_directory = "~/Applications"

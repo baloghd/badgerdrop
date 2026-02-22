@@ -42,11 +42,17 @@
 - [ ] IMPROVEMENT: add support for more package managers (e.g. apt, yum)
 - [ ] IMPROVEMENT: create a PPA for easy installation on Ubuntu-based systems
 - [ ] IMPROVEMENT: determine Python version compatibility matrix
+- [ ] IMPROVEMENT: add CI and CD for creating GitHub releases with pre-built packages attached
+- [ ] IMPROVEMENT: create nice, user friendly README with installation instructions, screenshots, and feature list
 
 ## Code Quality & Testing
 
 ### Testing
-- [ ] IMPROVEMENT: add basic unit test suite
+- [x] IMPROVEMENT: add basic unit test suite
+  - Created comprehensive unit test suite with 91 tests
+  - Tests for models, settings, registry, validators, file_copier, paths, constants
+  - All tests passing with pytest
+  - Test infrastructure: conftest.py with fixtures, temp directories, GTK mocks
 - [ ] IMPROVEMENT: add integration tests for installation process
 - [ ] IMPROVEMENT: add tests for edge cases (e.g. installing to non-writable directory, handling invalid AppImages)
 - [x] IMPROVEMENT: add process for creating 'hello world' AppImage for testing purposes
