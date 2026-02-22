@@ -53,8 +53,18 @@
   - Tests for models, settings, registry, validators, file_copier, paths, constants
   - All tests passing with pytest
   - Test infrastructure: conftest.py with fixtures, temp directories, GTK mocks
-- [ ] IMPROVEMENT: add integration tests for installation process
-- [ ] IMPROVEMENT: add tests for edge cases (e.g. installing to non-writable directory, handling invalid AppImages)
+- [x] IMPROVEMENT: add integration tests for installation process
+  - Created 14 integration tests in tests/integration/
+  - Tests for full installation flow, AppImage parsing, and async installation service
+  - Real AppImage tests (hello-world.AppImage) with CI fallback (mocked)
+  - All passing with proper mocking for CI compatibility
+- [x] IMPROVEMENT: add tests for edge cases (e.g. installing to non-writable directory, handling invalid AppImages)
+  - Created 23 edge case tests in tests/edge_cases/
+  - Permission errors: non-writable dirs, read-only files, rollback on failure
+  - Invalid AppImages: missing desktop files, corrupted syntax, binary content
+  - Concurrent installs: race conditions, simultaneous operations
+  - Installation overwrite: already-installed app handling
+  - All passing with mocked permission tests for CI compatibility
 - [x] IMPROVEMENT: add process for creating 'hello world' AppImage for testing purposes
   - Created tests/assets/hello-world-appimage/ with build script
   - Uses zenity/yad for minimal GUI dialog
