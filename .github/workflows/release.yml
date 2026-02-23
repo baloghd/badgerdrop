@@ -65,11 +65,11 @@ jobs:
           libgirepository-2.0-dev \
           libcairo2-dev \
           gobject-introspection \
-          gobject-introspection-dev \
           gir1.2-gtk-4.0 \
           gir1.2-adw-1 \
           python3-dev \
           pkg-config \
+          cmake \
           debhelper \
           devscripts \
           dh-python \
