@@ -80,16 +80,26 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y \
           libgirepository1.0-dev \
+          libgirepository-2.0-dev \
           libcairo2-dev \
           gobject-introspection \
           gir1.2-gtk-4.0 \
           gir1.2-adw-1 \
+          python3-dev \
+          pkg-config \
+          cmake \
           debhelper \
           devscripts \
           dh-python
     
+    - name: Set PKG_CONFIG_PATH
+      run: |
+        echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
+    
     - name: Install Python dependencies
       run: uv sync --all-extras
+      env:
+        PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig
     
     - name: Build Debian package
       run: make build-dpkg
