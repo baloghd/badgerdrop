@@ -65,18 +65,27 @@ jobs:
           libgirepository-2.0-dev \
           libcairo2-dev \
           gobject-introspection \
+          gobject-introspection-dev \
           gir1.2-gtk-4.0 \
           gir1.2-adw-1 \
+          python3-dev \
+          pkg-config \
           debhelper \
           devscripts \
           dh-python \
           rubygems
+    
+    - name: Set PKG_CONFIG_PATH
+      run: |
+        echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
     
     - name: Install fpm for RPM building
       run: sudo gem install fpm
     
     - name: Install Python dependencies
       run: uv sync --all-extras
+      env:
+        PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig
     
     - name: Run tests
       run: uv run pytest tests/ -v --tb=short
