@@ -48,8 +48,8 @@ class DesktopIntegration:
             )
             if result.returncode != 0:
                 logger.warning("xdg-open returned non-zero: %s", result.stderr)
-        except FileNotFoundError:
-            raise DesktopIntegrationError("xdg-open not found")
+        except FileNotFoundError as err:
+            raise DesktopIntegrationError("xdg-open not found") from err
         except Exception as e:
             raise DesktopIntegrationError(f"Failed to open file manager: {e}") from e
 
@@ -77,7 +77,7 @@ class DesktopIntegration:
             )
             if result.returncode != 0:
                 logger.warning("xdg-open returned non-zero: %s", result.stderr)
-        except FileNotFoundError:
-            raise DesktopIntegrationError("xdg-open not found")
+        except FileNotFoundError as err:
+            raise DesktopIntegrationError("xdg-open not found") from err
         except Exception as e:
             raise DesktopIntegrationError(f"Failed to open file: {e}") from e

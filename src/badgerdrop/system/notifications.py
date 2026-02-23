@@ -6,7 +6,7 @@ import logging
 import gi
 
 gi.require_version("Gio", "2.0")
-from gi.repository import Gio
+from gi.repository import Gio  # noqa: E402
 
 _ = gettext.gettext("badgerdrop")
 logger = logging.getLogger(__name__)

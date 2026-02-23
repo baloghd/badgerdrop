@@ -8,15 +8,15 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-import gettext
-from pathlib import Path
+import gettext  # noqa: E402
+from pathlib import Path  # noqa: E402
 
-from gi.repository import Adw, Gio
+from gi.repository import Adw, Gio  # noqa: E402
 
 _ = gettext.gettext
 
-from badgerdrop.core.appimage import AppImageParser
-from badgerdrop.ui.window import MainWindow
+from badgerdrop.core.appimage import AppImageParser  # noqa: E402
+from badgerdrop.ui.window import MainWindow  # noqa: E402
 
 # Setup logging
 logger = logging.getLogger("badgerdrop")

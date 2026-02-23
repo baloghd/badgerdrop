@@ -417,9 +417,8 @@ class MainWindow(Adw.ApplicationWindow):
             parent=self, app_name=self.current_info.name, total_bytes=total_size
         )
         dialog.present()
-        self._debug_print(
-            f"Installing {self.current_appimage.name} ({total_size / 1024 / 1024:.1f} MB)"
-        )
+        size_mb = total_size / 1024 / 1024
+        self._debug_print(f"Installing {self.current_appimage.name} ({size_mb:.1f} MB)")
 
         def progress_callback(description: str, bytes_copied: int, total_bytes: int):
             """Update progress dialog from worker thread"""

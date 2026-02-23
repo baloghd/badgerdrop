@@ -58,7 +58,7 @@ class InstallationService:
             progress_callback: Called with (phase, bytes_copied, total_bytes)
             success_callback: Called with InstalledApp on success
             error_callback: Called with Exception on failure
-            cleanup_callback: Optional cleanup to run after completion (success or error)
+            cleanup_callback: Optional cleanup to run after completion
         """
 
         def install_worker():
