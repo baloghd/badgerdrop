@@ -95,16 +95,33 @@ jobs:
     - name: Build Debian package
       run: make build-dpkg
     
+    - name: Debug - Find deb files
+      run: |
+        echo "Current directory: $(pwd)"
+        echo "Looking for .deb files..."
+        find . -name "*.deb" -type f 2>/dev/null || echo "No .deb files found"
+        echo ""
+        echo "Parent directory:"
+        ls -la ../*.deb 2>/dev/null || echo "No .deb in parent"
+    
     - name: Rename Debian package with version
       run: |
         VERSION="${{ steps.get_version.outputs.version }}"
-        # The .deb is built in the current directory
-        for pkg in *.deb; do
-          if [[ -f "$pkg" && ! "$pkg" =~ _${VERSION}_ ]]; then
-            newname=$(echo "$pkg" | sed "s/_.*_/_${VERSION}_/")
+        # Find and process .deb files from anywhere
+        for pkg in $(find . .. -name "*.deb" -type f 2>/dev/null | head -5); do
+          echo "Found: $pkg"
+          if [[ ! "$pkg" =~ _${VERSION}_ ]]; then
+            newname=$(basename "$pkg" | sed "s/_.*_/_${VERSION}_/")
+            echo "Renaming to: $newname"
             mv "$pkg" "$newname"
+          else
+            echo "Already has correct version"
+            cp "$pkg" . 2>/dev/null || true
           fi
         done
+        echo ""
+        echo "Final .deb files in current directory:"
+        ls -la *.deb 2>/dev/null || echo "No .deb files"
     
     - name: Build RPM package
       run: make build-rpm
