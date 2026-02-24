@@ -162,4 +162,4 @@ All code includes type hints and follows the project's coding standards.
 
 ## License
 
-MIT
+GPL v3 - see [LICENSE](LICENSE) for details.
