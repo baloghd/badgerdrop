@@ -2,15 +2,16 @@
 
 from pathlib import Path
 from subprocess import Popen
-from typing import Optional, Union
 
 try:
     # Pydantic v2
-    from pydantic import BaseModel, ConfigDict, Field
+    from pydantic import BaseModel, ConfigDict, Field  # noqa: F401
+
     PYDANTIC_V2 = True
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel, Field
+
     PYDANTIC_V2 = False
 
 
@@ -23,13 +24,13 @@ class AppImageInfo(BaseModel):
     name: str
     exec_cmd: str
     icon_name: str
-    icon_path: Optional[Path] = None
+    icon_path: Path | None = None
     categories: list = Field(default_factory=list)
     comment: str = ""
     desktop_file_content: str = ""
-    temp_extract_dir: Optional[Path] = None
-    mount_proc: Optional[Popen] = None
-    version: Optional[str] = None
+    temp_extract_dir: Path | None = None
+    mount_proc: Popen | None = None
+    version: str | None = None
 
     def cleanup(self) -> None:
         """Clean up temporary files and unmount AppImage"""
@@ -65,8 +66,8 @@ class InstalledApp(BaseModel):
     icon_name: str
     install_date: str
     categories: list = Field(default_factory=list)
-    comment: Optional[str] = None
-    desktop_file: Optional[str] = None
+    comment: str | None = None
+    desktop_file: str | None = None
 
 
 class AppSettings(BaseModel):
@@ -79,11 +80,13 @@ class AppSettings(BaseModel):
     install_directory: str = "~/Applications"
 
     if PYDANTIC_V2:
+
         def model_post_init(self, __context) -> None:
             """Post-initialization to validate install directory"""
             if not self.install_directory or not self.install_directory.strip():
                 self.install_directory = "~/Applications"
     else:
+
         def __post_init__(self) -> None:
             """Post-initialization to validate install directory"""
             if not self.install_directory or not self.install_directory.strip():
