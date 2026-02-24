@@ -98,15 +98,13 @@ jobs:
     - name: Rename Debian package with version
       run: |
         VERSION="${{ steps.get_version.outputs.version }}"
-        # The .deb is built in the parent directory by make build-dpkg
-        for pkg in ../*.deb; do
+        # The .deb is built in the current directory
+        for pkg in *.deb; do
           if [[ -f "$pkg" && ! "$pkg" =~ _${VERSION}_ ]]; then
             newname=$(echo "$pkg" | sed "s/_.*_/_${VERSION}_/")
             mv "$pkg" "$newname"
           fi
         done
-        # Move it back to current directory for the upload step
-        mv ../*.deb . 2>/dev/null || true
     
     - name: Build RPM package
       run: make build-rpm
@@ -114,12 +112,15 @@ jobs:
     - name: Rename RPM package with version
       run: |
         VERSION="${{ steps.get_version.outputs.version }}"
-        for pkg in *.rpm; do
-          if [[ ! "$pkg" =~ -${VERSION}- ]]; then
+        # The .rpm is built in the parent directory by make build-rpm
+        for pkg in ../*.rpm; do
+          if [[ -f "$pkg" && ! "$pkg" =~ -${VERSION}- ]]; then
             newname=$(echo "$pkg" | sed "s/-[0-9]\+\.[0-9]\+\.[0-9]\+/-${VERSION}/")
             mv "$pkg" "$newname"
           fi
         done
+        # Move it back to current directory for the upload step
+        mv ../*.rpm . 2>/dev/null || true
     
     - name: Generate changelog
       id: changelog
