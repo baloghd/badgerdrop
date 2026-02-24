@@ -1,14 +1,16 @@
-# AppImg
+# BadgerDrop
 
-AppImage installer for Linux. Drag and drop AppImages to install them with proper desktop integration.
+A GTK4/Adwaita-based AppImage installer for Linux. Drag and drop AppImages to install them with proper desktop integration.
 
 ## Features
 
-- **Drag-and-drop interface**: Drag AppImage onto the Applications folder
+- **Drag-and-drop interface**: Modern GTK4 interface with LibAdwaita styling
 - **Desktop integration**: Automatically creates .desktop entries
 - **Icon extraction**: Extracts and installs app icons
 - **User-only installation**: Installs to `~/Applications`, no sudo required
 - **Debug mode**: Shows detailed extraction and installation logs
+- **Sound notifications**: Optional audio feedback on completion
+- **Settings management**: Persistent preferences for installation directory and sound
 
 ## Quick Start
 
@@ -21,16 +23,13 @@ sudo apt-get install -y libgirepository1.0-dev libgirepository-2.0-dev libcairo2
 
 # Fedora
 sudo dnf install gobject-introspection-devel cairo-gobject-devel gtk4-devel libadwaita-devel
-
-# Arch Linux
-sudo pacman -S gobject-introspection cairo gtk4 libadwaita
 ```
 
 ### 2. Setup Python Environment
 
 ```bash
 # Clone and enter directory
-cd appimgdmg
+cd badgerdrop
 
 # Install Python dependencies with uv
 make setup
@@ -53,13 +52,13 @@ make debug APP=/path/to/app.AppImage
 
 ```bash
 # Launch GUI
-appimg
+badgerdrop
 
 # With a specific file
-appimg /path/to/app.AppImage
+badgerdrop /path/to/app.AppImage
 
 # Debug mode (verbose)
-appimg-debug --appimage /path/to/app.AppImage
+badgerdrop-debug --appimage /path/to/app.AppImage
 ```
 
 Drag and drop any AppImage onto the Applications folder target to install it.
@@ -68,8 +67,8 @@ Drag and drop any AppImage onto the Applications folder target to install it.
 
 1. **Drag & Drop**: Drop an AppImage onto the installer window
 2. **Extraction**: AppImage is extracted to analyze its contents
-3. **Metadata**: .desktop file and icon are extracted
-4. **Installation**: 
+3. **Metadata**: .desktop file and icon are extracted using Pydantic models
+4. **Installation**:
    - AppImage copied to `~/Applications/`
    - Icon installed to `~/.local/share/icons/`
    - .desktop entry created in `~/.local/share/applications/`
@@ -78,15 +77,45 @@ Drag and drop any AppImage onto the Applications folder target to install it.
 ## Project Structure
 
 ```
-appimgdmg/
-├── src/appimg/
-│   ├── __init__.py
-│   ├── main.py              # GTK app entry point
-│   ├── appimage.py          # AppImage parsing
-│   ├── installer.py         # Desktop integration
-│   └── ui/
-│       ├── __init__.py
-│       └── window.py        # Main window UI
+badgerdrop/
+├── src/badgerdrop/
+│   ├── __init__.py          # Package exports and version
+│   ├── __main__.py          # Entry point
+│   ├── main.py              # GTK4/Adwaita application class
+│   ├── core/                # Core domain models and AppImage parsing
+│   │   ├── models.py        # Pydantic models (AppImageInfo, InstalledApp, AppSettings)
+│   │   └── appimage.py      # AppImage parsing logic
+│   ├── config/              # Configuration and paths
+│   │   ├── constants.py     # Application constants
+│   │   ├── paths.py         # Path utilities
+│   │   └── settings.py      # Settings persistence
+│   ├── install/             # Installation and registry
+│   │   ├── installer.py     # AppImageInstaller
+│   │   └── registry.py      # InstalledAppsManager
+│   ├── system/              # System integration
+│   │   ├── notifications.py # Desktop notifications
+│   │   └── sound.py         # Audio playback
+│   ├── ui/                  # GUI components
+│   │   ├── window.py        # Main window UI
+│   │   ├── drag_content.py  # Drag and drop handling
+│   │   ├── progress_dialog.py
+│   │   ├── settings_dialog.py
+│   │   └── helpers.py
+│   ├── services/            # Business logic services
+│   │   ├── installation_service.py
+│   │   ├── appimage_service.py
+│   │   └── errors.py
+│   └── utils/               # Utility modules
+│       ├── file_copier.py
+│       ├── desktop.py
+│       ├── desktop_manager.py
+│       ├── icon_installer.py
+│       ├── validators.py
+│       └── logging_config.py
+├── tests/                   # Test suite (pytest)
+│   ├── unit/
+│   ├── integration/
+│   └── edge_cases/
 ├── Makefile
 ├── pyproject.toml
 └── README.md
@@ -117,8 +146,14 @@ make clean-all         # Full cleanup including venv
 Or use `uv` directly:
 
 ```bash
+# Run the application
+uv run badgerdrop
+
 # Run in debug mode (verbose logging)
-uv run appimg-debug --appimage /path/to/app.AppImage
+uv run badgerdrop-debug --appimage /path/to/app.AppImage
+
+# Run tests
+uv run pytest tests/ -v
 
 # Format code
 uv run black src/
@@ -135,6 +170,18 @@ uv run mypy src/
 - libadwaita
 - gobject-introspection
 - [uv](https://docs.astral.sh/uv/) (recommended) or pip
+
+## Architecture
+
+BadgerDrop uses a layered architecture:
+
+- **Models**: Pydantic-based data models for type safety and validation
+- **Services**: Business logic layer handling installation workflows
+- **Core**: AppImage parsing and domain logic
+- **UI**: GTK4/Adwaita components with CSS styling
+- **Utils**: Helper modules for file operations and desktop integration
+
+All code includes type hints and follows the project's coding standards.
 
 ## License
 
