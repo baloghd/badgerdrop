@@ -2,25 +2,34 @@
 
 from pathlib import Path
 from subprocess import Popen
+from typing import Optional, Union
 
-from pydantic import BaseModel, ConfigDict, Field
+try:
+    # Pydantic v2
+    from pydantic import BaseModel, ConfigDict, Field
+    PYDANTIC_V2 = True
+except ImportError:
+    # Pydantic v1
+    from pydantic import BaseModel, Field
+    PYDANTIC_V2 = False
 
 
 class AppImageInfo(BaseModel):
     """Extracted information from an AppImage"""
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    class Config:
+        arbitrary_types_allowed = True
 
     name: str
     exec_cmd: str
     icon_name: str
-    icon_path: Path | None = None
-    categories: list[str] = Field(default_factory=list)
+    icon_path: Optional[Path] = None
+    categories: list = Field(default_factory=list)
     comment: str = ""
     desktop_file_content: str = ""
-    temp_extract_dir: Path | None = None
-    mount_proc: Popen | None = None
-    version: str | None = None
+    temp_extract_dir: Optional[Path] = None
+    mount_proc: Optional[Popen] = None
+    version: Optional[str] = None
 
     def cleanup(self) -> None:
         """Clean up temporary files and unmount AppImage"""
@@ -55,9 +64,9 @@ class InstalledApp(BaseModel):
     install_path: str  # Where it was copied to
     icon_name: str
     install_date: str
-    categories: list[str] = Field(default_factory=list)
-    comment: str | None = None
-    desktop_file: str | None = None
+    categories: list = Field(default_factory=list)
+    comment: Optional[str] = None
+    desktop_file: Optional[str] = None
 
 
 class AppSettings(BaseModel):
@@ -69,7 +78,13 @@ class AppSettings(BaseModel):
     show_notifications: bool = True
     install_directory: str = "~/Applications"
 
-    def model_post_init(self, __context) -> None:
-        """Post-initialization to validate install directory"""
-        if not self.install_directory or not self.install_directory.strip():
-            self.install_directory = "~/Applications"
+    if PYDANTIC_V2:
+        def model_post_init(self, __context) -> None:
+            """Post-initialization to validate install directory"""
+            if not self.install_directory or not self.install_directory.strip():
+                self.install_directory = "~/Applications"
+    else:
+        def __post_init__(self) -> None:
+            """Post-initialization to validate install directory"""
+            if not self.install_directory or not self.install_directory.strip():
+                self.install_directory = "~/Applications"
