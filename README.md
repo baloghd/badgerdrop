@@ -6,6 +6,30 @@ A GTK4/Adwaita-based AppImage installer for Linux. Drag and drop AppImages to in
 ## Demo
 [demo_trimmed.webm](https://github.com/user-attachments/assets/d90f9c8a-c36e-49b3-b942-83e879bb1e00)
 
+## Installation
+
+### Option 1: Download Pre-built Package (Recommended)
+
+Download the latest release for your distribution:
+
+**Debian/Ubuntu:**
+```bash
+wget https://github.com/baloghd/badgerdrop/releases/latest/download/badgerdrop_0.1.1-1_all.deb
+sudo dpkg -i badgerdrop_0.1.1-1_all.deb
+```
+
+**Fedora/RHEL:**
+```bash
+wget https://github.com/baloghd/badgerdrop/releases/latest/download/badgerdrop-0.1.1-1.noarch.rpm
+sudo rpm -i badgerdrop-0.1.1-1.noarch.rpm
+```
+
+That's it! BadgerDrop is now installed and ready to use.
+
+### Option 2: Build from Source
+
+See the [Development](#development) section below for build instructions.
+
 ## Features
 
 - **Drag-and-drop interface**: Modern GTK4 interface with LibAdwaita styling
@@ -15,42 +39,6 @@ A GTK4/Adwaita-based AppImage installer for Linux. Drag and drop AppImages to in
 - **Debug mode**: Shows detailed extraction and installation logs
 - **Sound notifications**: Optional audio feedback on completion
 - **Settings management**: Persistent preferences for installation directory and sound
-
-## Quick Start
-
-### 1. Install System Dependencies
-
-```bash
-# Debian/Ubuntu
-sudo apt-get update
-sudo apt-get install -y libgirepository1.0-dev libgirepository-2.0-dev libcairo2-dev gobject-introspection gir1.2-gtk-4.0 gir1.2-adw-1
-
-# Fedora
-sudo dnf install gobject-introspection-devel cairo-gobject-devel gtk4-devel libadwaita-devel
-```
-
-### 2. Setup Python Environment
-
-```bash
-# Clone and enter directory
-cd badgerdrop
-
-# Install Python dependencies with uv
-make setup
-
-# Or manually:
-# uv sync --all-extras
-```
-
-### 3. Run
-
-```bash
-# Launch GUI
-make run
-
-# Or in debug mode
-make debug APP=/path/to/app.AppImage
-```
 
 ## Usage
 
@@ -78,56 +66,55 @@ Drag and drop any AppImage onto the Applications folder target to install it.
    - .desktop entry created in `~/.local/share/applications/`
    - Desktop database updated
 
-## Project Structure
+## Development
+
+### Prerequisites
+
+- Python 3.11+
+- GTK4
+- libadwaita
+- gobject-introspection
+- [uv](https://docs.astral.sh/uv/) (recommended) or pip
+
+### Setup
+
+```bash
+# Clone and enter directory
+cd badgerdrop
+
+# Install Python dependencies with uv
+make setup
+```
+
+### Running
+
+```bash
+# Launch GUI
+make run
+
+# Debug mode
+make debug APP=/path/to/app.AppImage
+```
+
+### Project Structure
 
 ```
 badgerdrop/
 ├── src/badgerdrop/
-│   ├── __init__.py          # Package exports and version
-│   ├── __main__.py          # Entry point
-│   ├── main.py              # GTK4/Adwaita application class
 │   ├── core/                # Core domain models and AppImage parsing
-│   │   ├── models.py        # Pydantic models (AppImageInfo, InstalledApp, AppSettings)
-│   │   └── appimage.py      # AppImage parsing logic
 │   ├── config/              # Configuration and paths
-│   │   ├── constants.py     # Application constants
-│   │   ├── paths.py         # Path utilities
-│   │   └── settings.py      # Settings persistence
 │   ├── install/             # Installation and registry
-│   │   ├── installer.py     # AppImageInstaller
-│   │   └── registry.py      # InstalledAppsManager
-│   ├── system/              # System integration
-│   │   ├── notifications.py # Desktop notifications
-│   │   └── sound.py         # Audio playback
+│   ├── system/              # System integration (notifications, sound)
 │   ├── ui/                  # GUI components
-│   │   ├── window.py        # Main window UI
-│   │   ├── drag_content.py  # Drag and drop handling
-│   │   ├── progress_dialog.py
-│   │   ├── settings_dialog.py
-│   │   └── helpers.py
 │   ├── services/            # Business logic services
-│   │   ├── installation_service.py
-│   │   ├── appimage_service.py
-│   │   └── errors.py
 │   └── utils/               # Utility modules
-│       ├── file_copier.py
-│       ├── desktop.py
-│       ├── desktop_manager.py
-│       ├── icon_installer.py
-│       ├── validators.py
-│       └── logging_config.py
 ├── tests/                   # Test suite (pytest)
-│   ├── unit/
-│   ├── integration/
-│   └── edge_cases/
 ├── Makefile
 ├── pyproject.toml
 └── README.md
 ```
 
-## Development
-
-Use the provided Makefile for common tasks:
+### Development Commands
 
 ```bash
 # Setup environment
@@ -153,29 +140,15 @@ Or use `uv` directly:
 # Run the application
 uv run badgerdrop
 
-# Run in debug mode (verbose logging)
-uv run badgerdrop-debug --appimage /path/to/app.AppImage
-
 # Run tests
 uv run pytest tests/ -v
 
 # Format code
 uv run black src/
 uv run ruff check --fix src/
-
-# Type checking
-uv run mypy src/
 ```
 
-## Requirements
-
-- Python 3.11+
-- GTK4
-- libadwaita
-- gobject-introspection
-- [uv](https://docs.astral.sh/uv/) (recommended) or pip
-
-## Architecture
+### Architecture
 
 BadgerDrop uses a layered architecture:
 
