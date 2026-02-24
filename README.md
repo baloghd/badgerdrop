@@ -1,5 +1,6 @@
-# BadgerDrop
+<img src="https://github.com/user-attachments/assets/0942d0ef-9241-49ee-be4f-c416f6bfe2af" width="128">  
 
+# BadgerDrop 
 A GTK4/Adwaita-based AppImage installer for Linux. Drag and drop AppImages to install them with proper desktop integration.
 
 ## Demo
