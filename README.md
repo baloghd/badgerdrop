@@ -2,6 +2,10 @@
 
 A GTK4/Adwaita-based AppImage installer for Linux. Drag and drop AppImages to install them with proper desktop integration.
 
+## Demo
+
+[demo.webm](https://github.com/user-attachments/assets/4c5cf767-c9eb-4098-b324-d2cee3757b58)
+
 ## Features
 
 - **Drag-and-drop interface**: Modern GTK4 interface with LibAdwaita styling
