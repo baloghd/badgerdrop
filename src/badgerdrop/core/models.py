@@ -5,7 +5,7 @@ from subprocess import Popen
 
 try:
     # Pydantic v2
-    from pydantic import BaseModel, ConfigDict, Field
+    from pydantic import BaseModel, ConfigDict, Field # noqa: F401
 
     PYDANTIC_V2 = True
 except ImportError:
