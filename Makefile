@@ -1,9 +1,17 @@
 # AppImg Makefile
 # AppImage installer for Linux
 
-VERSION ?= 0.1.0
+VERSION ?= 0.1.2
 
-.PHONY: help setup run debug format check test clean clean-all deps install-deps install-desktop uninstall-desktop build-dpkg install-package reinstall-package clean-dpkg install-fpm build-rpm build-all clean-rpm translations clean-translations
+# Dynamic Python site-packages path detection
+# Gets path like /usr/lib/python3.11/site-packages and extracts lib/python3.11/site-packages
+PYTHON_SITE_PACKAGES := $(shell python3 -c "import sysconfig; print(sysconfig.get_path('purelib'))" 2>/dev/null | sed 's|^/usr/||')
+# Fallback to Debian default if detection fails
+ifeq ($(PYTHON_SITE_PACKAGES),)
+PYTHON_SITE_PACKAGES = lib/python3/dist-packages
+endif
+
+.PHONY: help setup run debug format check test clean clean-all deps install-deps install-desktop uninstall-desktop prepare-pkgdir build-dpkg install-package reinstall-package clean-dpkg install-fpm build-rpm build-all clean-rpm translations clean-translations
 
 # Default target
 help:
@@ -209,16 +217,19 @@ DPKG_DIR = debian
 BUILD_DIR = $(DPKG_DIR)/badgerdrop
 DEB_FILE = ../badgerdrop_0.1.0-1_all.deb
 
-build-dpkg:
-	@echo "Building Debian package..."
+# Common package directory preparation (used by both Debian and RPM builds)
+prepare-pkgdir:
+	@echo "Preparing package directory..."
+	@echo "Python site-packages path: $(PYTHON_SITE_PACKAGES)"
 	@echo "Creating package structure..."
-	@mkdir -p $(BUILD_DIR)/usr/lib/python3/dist-packages
+	@mkdir -p $(BUILD_DIR)/usr/$(PYTHON_SITE_PACKAGES)
 	@mkdir -p $(BUILD_DIR)/usr/bin
 	@mkdir -p $(BUILD_DIR)/usr/share/applications
 	@mkdir -p $(BUILD_DIR)/usr/share/mime/packages
 	@mkdir -p $(BUILD_DIR)/usr/share/pixmaps
+	@mkdir -p $(BUILD_DIR)/usr/share/icons/hicolor/scalable/apps
 	@echo "Installing Python package..."
-	@cp -r src/badgerdrop $(BUILD_DIR)/usr/lib/python3/dist-packages/
+	@cp -r src/badgerdrop $(BUILD_DIR)/usr/$(PYTHON_SITE_PACKAGES)/
 	@echo "Installing entry points..."
 	@echo '#!/bin/sh' > $(BUILD_DIR)/usr/bin/badgerdrop
 	@echo '# AppImg main entry point' >> $(BUILD_DIR)/usr/bin/badgerdrop
@@ -228,20 +239,25 @@ build-dpkg:
 	@echo 'exec /usr/bin/python3 -m badgerdrop --debug "$$@"' >> $(BUILD_DIR)/usr/bin/badgerdrop-debug
 	@echo '#!/bin/sh' > $(BUILD_DIR)/usr/bin/badgerdrop-list
 	@echo '# AppImg list entry point' >> $(BUILD_DIR)/usr/bin/badgerdrop-list
-	@echo 'exec /usr/bin/python3 -c "from badgerdrop.installed import InstalledAppsManager; import json; apps = InstalledAppsManager().get_all_apps(); print(json.dumps([{\"name\": a.name, \"version\": a.version, \"install_path\": a.install_path, \"install_date\": a.install_date} for a in apps], indent=2))"' >> $(BUILD_DIR)/usr/bin/badgerdrop-list
+	@echo 'exec /usr/bin/python3 -c "from badgerdrop.install.registry import InstalledAppsManager; import json; apps = InstalledAppsManager().get_all_apps(); print(json.dumps([{\"name\": a.name, \"version\": a.version, \"install_path\": str(a.install_path), \"install_date\": a.install_date} for a in apps], indent=2))"' >> $(BUILD_DIR)/usr/bin/badgerdrop-list
 	@echo '#!/bin/sh' > $(BUILD_DIR)/usr/bin/badgerdrop-sound
 	@echo '# AppImg sound toggle entry point' >> $(BUILD_DIR)/usr/bin/badgerdrop-sound
-	@echo 'exec /usr/bin/python3 -c "from badgerdrop.settings import SettingsManager; s = SettingsManager(); s.play_sound_on_install = not s.play_sound_on_install; print(f\"Sound notifications: {\\\"enabled\\\" if s.play_sound_on_install else \\\"disabled\\\"}\")"' >> $(BUILD_DIR)/usr/bin/badgerdrop-sound
+	@echo 'exec /usr/bin/python3 -c "from badgerdrop.config.settings import SettingsManager; s = SettingsManager(); s.play_sound_on_install = not s.play_sound_on_install; print(f\"Sound notifications: {\\\"enabled\\\" if s.play_sound_on_install else \\\"disabled\\\"}\")"' >> $(BUILD_DIR)/usr/bin/badgerdrop-sound
 	@chmod +x $(BUILD_DIR)/usr/bin/badgerdrop*
 	@echo "Installing desktop files..."
 	@cp data/dev.badgerdrop.Installer.desktop $(BUILD_DIR)/usr/share/applications/
 	@cp data/badgerdrop.mime.xml $(BUILD_DIR)/usr/share/mime/packages/badgerdrop.xml
 	@cp data/badgerdrop.svg $(BUILD_DIR)/usr/share/pixmaps/
+	@cp data/badgerdrop.svg $(BUILD_DIR)/usr/share/icons/hicolor/scalable/apps/
 	@echo "Installing translations..."
 	@for lang in de fr es hu; do \
 		mkdir -p $(BUILD_DIR)/usr/share/locale/$$lang/LC_MESSAGES; \
 		msgfmt po/$$lang.po -o $(BUILD_DIR)/usr/share/locale/$$lang/LC_MESSAGES/badgerdrop.mo; \
 	done
+	@echo "✓ Package directory prepared"
+
+build-dpkg: prepare-pkgdir
+	@echo "Building Debian package..."
 	@echo "Installing package control files..."
 	@mkdir -p $(BUILD_DIR)/DEBIAN
 	@cp debian/control.binary $(BUILD_DIR)/DEBIAN/control
@@ -315,11 +331,25 @@ RPM_FILE = ../badgerdrop-$(VERSION)-1.noarch.rpm
 install-fpm:  ## Install fpm (Effing Package Management) for RPM building
 	@echo "Installing fpm..."
 	@echo "Note: fpm requires Ruby and RubyGems"
-	sudo apt-get update
-	sudo apt-get install -y ruby ruby-dev rubygems build-essential
+	@if command -v dnf >/dev/null 2>&1; then \
+		echo "Detected Fedora/RHEL system, using dnf..."; \
+		sudo dnf install -y ruby ruby-devel rubygems gcc make rpm-build; \
+	elif command -v apt-get >/dev/null 2>&1; then \
+		echo "Detected Debian/Ubuntu system, using apt-get..."; \
+		sudo apt-get update; \
+		sudo apt-get install -y ruby ruby-dev rubygems build-essential; \
+	elif command -v pacman >/dev/null 2>&1; then \
+		echo "Detected Arch system, using pacman..."; \
+		sudo pacman -S --needed ruby; \
+	else \
+		echo "Could not detect package manager. Please install Ruby and RubyGems manually."; \
+		exit 1; \
+	fi
+	@echo "Installing fpm gem..."
 	sudo gem install fpm
+	@echo "✓ fpm installed successfully"
 
-build-rpm: $(BUILD_DIR)/usr/bin/badgerdrop  ## Build RPM package using fpm
+build-rpm: prepare-pkgdir  ## Build RPM package using fpm
 	@echo "Building RPM package..."
 	@echo "Source: $(BUILD_DIR)/usr/"
 	@echo "Output: $(RPM_FILE)"
@@ -334,6 +364,7 @@ build-rpm: $(BUILD_DIR)/usr/bin/badgerdrop  ## Build RPM package using fpm
 		--vendor "xcvb" \
 		--maintainer "xcvb" \
 		-d "python3 >= 3.11" \
+		-d "python3-pydantic" \
 		-d "python3-gobject-base" \
 		-d "gtk4" \
 		-d "libadwaita" \

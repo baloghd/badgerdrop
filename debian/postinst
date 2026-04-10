@@ -2,9 +2,13 @@
 set -e
 
 # Post-installation script for badgerdrop
+# Handles both Debian and RPM package managers
 
 case "$1" in
-    configure)
+    configure|1)
+        # configure = Debian postinst
+        # 1 = RPM %post (first install)
+        
         # Update MIME association
         update-mime-database /usr/share/mime >/dev/null 2>&1 || true
         
@@ -12,11 +16,12 @@ case "$1" in
         update-desktop-database /usr/share/applications >/dev/null 2>&1 || true
         
         # Set badgerdrop as default handler for AppImage files
-        xdg-mime default dev.badgerdrop.Installer.desktop application/vnd.appimage
-        xdg-mime default dev.badgerdrop.Installer.desktop application/x-appimage
+        xdg-mime default dev.badgerdrop.Installer.desktop application/vnd.appimage 2>/dev/null || true
+        xdg-mime default dev.badgerdrop.Installer.desktop application/x-appimage 2>/dev/null || true
         ;;
     
-    abort-upgrade|abort-remove|abort-deconfigure)
+    abort-upgrade|abort-remove|abort-deconfigure|2)
+        # 2 = RPM %post (upgrade)
         ;;
     
     *)

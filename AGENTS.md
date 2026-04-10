@@ -28,8 +28,13 @@ uv run badgerdrop --appimage path/to/app.AppImage
 
 ### Lint/Format
 ```bash
-make format         # Format with Black + fix with Ruff
-make check          # Lint with Ruff + type check with mypy
+make check          # Lint with Ruff
+make format         # Auto-fix with Ruff
+
+# Direct Ruff commands:
+uv run ruff check src/          # Check src/ directory
+uv run ruff check --fix src/    # Check and auto-fix issues
+uv run ruff check tests/        # Check tests (warnings allowed)
 ```
 
 ### Test

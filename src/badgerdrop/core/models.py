@@ -1,5 +1,6 @@
 """Pydantic models for BadgerDrop core domain"""
 
+from contextlib import suppress
 from pathlib import Path
 from subprocess import Popen
 
@@ -52,7 +53,8 @@ class AppImageInfo(BaseModel):
 
         # Remove icon file if exists
         if self.icon_path is not None and self.icon_path.exists():
-            self.icon_path.unlink()
+            with suppress(OSError):
+                self.icon_path.unlink()
             self.icon_path = None
 
 

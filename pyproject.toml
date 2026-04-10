@@ -1,6 +1,6 @@
 [project]
 name = "badgerdrop"
-version = "0.1.1"
+version = "0.1.2"
 description = "AppImage installer for Linux"
 requires-python = ">=3.11"
 dependencies = [
@@ -22,8 +22,8 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/badgerdrop"]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "pytest>=7.0",
     "black>=23.0",
     "ruff>=0.1.0",
