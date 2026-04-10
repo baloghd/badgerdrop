@@ -129,7 +129,8 @@ jobs:
           gobject-introspection-devel \
           cairo-gobject-devel \
           rubygems \
-          rpm-build
+          rpm-build \
+          gettext
     
     - name: Install fpm
       run: gem install fpm
@@ -137,8 +138,11 @@ jobs:
     - name: Install Python dependencies
       run: pip3 install pygobject pydantic
     
+    - name: Prepare package directory
+      run: make prepare-pkgdir
+    
     - name: Build RPM package
-      run: make build-rpm || echo "RPM build requires full setup"
+      run: make build-rpm
     
     - name: Upload RPM package
       uses: actions/upload-artifact@v4

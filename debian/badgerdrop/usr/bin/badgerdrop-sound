@@ -1,3 +1,3 @@
 #!/bin/sh
 # AppImg sound toggle entry point
-exec /usr/bin/python3 -c "from badgerdrop.settings import SettingsManager; s = SettingsManager(); s.play_sound_on_install = not s.play_sound_on_install; print(f\"Sound notifications: {\\"enabled\\" if s.play_sound_on_install else \\"disabled\\"}\")"
+exec /usr/bin/python3 -c "from badgerdrop.config.settings import SettingsManager; s = SettingsManager(); s.play_sound_on_install = not s.play_sound_on_install; print(f\"Sound notifications: {\\\"enabled\\\" if s.play_sound_on_install else \\\"disabled\\\"}\")"

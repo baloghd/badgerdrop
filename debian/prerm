@@ -2,14 +2,19 @@
 set -e
 
 # Pre-removal script for badgerdrop
+# Handles both Debian and RPM package managers
 
 case "$1" in
-    remove|upgrade|deconfigure)
+    remove|upgrade|deconfigure|0)
+        # remove|upgrade|deconfigure = Debian prerm
+        # 0 = RPM %preun (removing last version)
+        
         # Remove badgerdrop as default handler
         # We don't set a new default, user can choose another
         ;;
     
-    failed-upgrade)
+    failed-upgrade|1)
+        # 1 = RPM %preun (upgrade, not removing)
         ;;
     
     *)
