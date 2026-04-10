@@ -384,6 +384,9 @@ class MainWindow(Adw.ApplicationWindow):
         """Update the UI to show the loaded app"""
         self.app_name_label.set_text(info.name)
 
+        # Reset icon to default first
+        self.app_image.set_from_icon_name("application-x-executable")
+
         # Try to load the actual icon
         if info.icon_path:
             try:
