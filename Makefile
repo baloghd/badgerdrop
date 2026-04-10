@@ -1,7 +1,7 @@
 # AppImg Makefile
 # AppImage installer for Linux
 
-VERSION ?= 0.1.0
+VERSION ?= 0.1.2
 
 # Dynamic Python site-packages path detection
 # Gets path like /usr/lib/python3.11/site-packages and extracts lib/python3.11/site-packages
