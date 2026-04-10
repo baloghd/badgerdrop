@@ -52,7 +52,11 @@ class AppImageInfo(BaseModel):
 
         # Remove icon file if exists
         if self.icon_path is not None and self.icon_path.exists():
-            self.icon_path.unlink()
+            try:
+                self.icon_path.unlink()
+            except OSError:
+                # Ignore errors (e.g., read-only filesystem)
+                pass
             self.icon_path = None
 
 
